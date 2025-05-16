@@ -188,10 +188,12 @@ footer {
     color: #222;
 }
 .footer-career {
-    font-weight: 600;
-    color: #1a7f3c;
-    margin-top: 4px;
-    font-size: 1.05rem;
+    text-align: center;
+    display: block;
+    width: 100%;
+    font-weight: bold;
+    color: #137c3a;
+    margin-top: 10px;
 }
 
 @media (max-width: 900px) {
