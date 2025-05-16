@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados – Curva Braquistócrona</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Resultados – Curva Braquistócrona</h1>
+        <h2>Comparación de tiempos de descenso en tres trayectorias</h2>
+        <div id="connection-status" class="status">🔴 Desconectado</div>
+    </header>
+    <main>
+        <section id="cards">
+            <div class="card" id="card-recta">
+                <div class="card-icon">📏</div>
+                <div class="card-title">Recta</div>
+                <div class="card-value-title">Inicio</div>
+                <div class="card-value" id="recta-inicio">–</div>
+                <div class="card-value-title">Medio</div>
+                <div class="card-value" id="recta-medio">–</div>
+                <div class="card-value-title">Final</div>
+                <div class="card-value" id="recta-final">–</div>
+            </div>
+            <div class="card" id="card-braquistocrona">
+                <div class="card-icon">🌀</div>
+                <div class="card-title">Braquistócrona</div>
+                <div class="card-value-title">Inicio</div>
+                <div class="card-value" id="braquistocrona-inicio">–</div>
+                <div class="card-value-title">Medio</div>
+                <div class="card-value" id="braquistocrona-medio">–</div>
+                <div class="card-value-title">Final</div>
+                <div class="card-value" id="braquistocrona-final">–</div>
+            </div>
+            <div class="card" id="card-hiperbola">
+                <div class="card-icon">📈</div>
+                <div class="card-title">Hipérbola</div>
+                <div class="card-value-title">Inicio</div>
+                <div class="card-value" id="hiperbola-inicio">–</div>
+                <div class="card-value-title">Medio</div>
+                <div class="card-value" id="hiperbola-medio">–</div>
+                <div class="card-value-title">Final</div>
+                <div class="card-value" id="hiperbola-final">–</div>
+            </div>
+        </section>
+        <section id="comparison">
+            <h3>Comparativa de Tiempos Finales</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Trayectoria</th>
+                        <th>Tiempo Final (ms)</th>
+                        <th>Resultado</th>
+                    </tr>
+                </thead>
+                <tbody id="comparison-table">
+                    <tr>
+                        <td>Recta</td>
+                        <td id="comp-recta">–</td>
+                        <td id="comp-recta-resultado">–</td>
+                    </tr>
+                    <tr>
+                        <td>Braquistócrona</td>
+                        <td id="comp-braquistocrona">–</td>
+                        <td id="comp-braquistocrona-resultado">–</td>
+                    </tr>
+                    <tr>
+                        <td>Hipérbola</td>
+                        <td id="comp-hiperbola">–</td>
+                        <td id="comp-hiperbola-resultado">–</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <section id="message">
+            <p id="adaptive-message">Esperando datos del ESP32…</p>
+        </section>
+    </main>
+    <footer>
+        <p>Creado por [Tu Nombre].</p>
+        <button id="refresh-button">Actualizar</button>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
