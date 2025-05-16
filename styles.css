@@ -134,6 +134,7 @@ footer {
     background: #e8f5e9;
     border-top: 2px solid #1a7f3c;
     padding-bottom: 18px;
+    position: relative;
 }
 #refresh-button {
     margin-top: 12px;
@@ -156,6 +157,10 @@ footer {
     align-items: center;
     width: 100%;
     margin-top: 10px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10px;
 }
 
 .footer-creators {
@@ -218,5 +223,12 @@ footer {
     #comparison {
         max-width: 98vw;
         padding: 1rem 0.2rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .footer-btn-container {
+        position: static;
+        margin-bottom: 10px;
     }
 }
