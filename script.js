@@ -95,20 +95,12 @@ refreshButton.addEventListener('click', fetchData);
 setInterval(fetchData, 1000);
 fetchData();
 
-// AWS IoT Core + Cognito MQTT over WebSocket connection
-// Requiere: AWS SDK, AWS IoT Device SDK
-
-// 1. Agrega los scripts en tu index.html antes de </body>:
-// <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.24.min.js"></script>
-// <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-
-// 2. Configura los datos de tu cuenta
+// --- AWS IoT Core MQTT sobre WebSocket usando Cognito y aws-iot-device-sdk ---
 const region = 'us-east-1';
 const identityPoolId = 'us-east-1:3513500b-d2a5-4c55-b502-6c0ff4c71c2b';
 const iotEndpoint = 'wss://aud5ctk8s2dkk-ats.iot.us-east-1.amazonaws.com/mqtt';
 const topic = 'topicC';
 
-// 3. Inicializa AWS Cognito para obtener credenciales temporales
 AWS.config.region = region;
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
     IdentityPoolId: identityPoolId
@@ -117,15 +109,25 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 AWS.config.credentials.get(function(err) {
     if (err) {
         console.error('Error obteniendo credenciales Cognito:', err);
+        connectionStatus.textContent = '🔴 Error de autenticación AWS';
         return;
     }
-    const credentials = AWS.config.credentials;
-    const requestUrl = SigV4Utils.getSignedUrl(iotEndpoint, region, credentials);
-    const client = mqtt.connect(requestUrl);
+    const clientId = 'webclient-' + Math.floor((Math.random() * 100000) + 1);
+    const device = awsIot.device({
+        region: region,
+        host: iotEndpoint.replace(/^wss:\/\//, '').replace(/\/mqtt$/, ''),
+        clientId: clientId,
+        protocol: 'wss',
+        maximumReconnectTimeMs: 8000,
+        accessKeyId: AWS.config.credentials.accessKeyId,
+        secretKey: AWS.config.credentials.secretAccessKey,
+        sessionToken: AWS.config.credentials.sessionToken
+    });
 
-    client.on('connect', function() {
-        console.log('Conectado a AWS IoT Core');
-        client.subscribe(topic, function(err) {
+    device.on('connect', function() {
+        connectionStatus.textContent = '🟢 Conectado a AWS IoT';
+        connectionStatus.classList.add('connected');
+        device.subscribe(topic, undefined, function(err) {
             if (err) {
                 console.error('Error al suscribirse:', err);
             } else {
@@ -134,41 +136,20 @@ AWS.config.credentials.get(function(err) {
         });
     });
 
-    client.on('message', function(topic, message) {
-        // Actualiza el valor en la web
-        document.getElementById('comp-hiperbola').textContent = message.toString();
+    device.on('message', function(topic, payload) {
+        // Si el mensaje es JSON, puedes parsear y actualizar toda la UI
+        try {
+            const data = JSON.parse(payload.toString());
+            updateUI(data);
+        } catch (e) {
+            // Si no es JSON, solo actualiza el campo de hipérbola
+            compHiper.textContent = payload.toString();
+        }
+    });
+
+    device.on('error', function(error) {
+        connectionStatus.textContent = '🔴 Error de conexión AWS IoT';
+        connectionStatus.classList.remove('connected');
+        console.error('Error en AWS IoT:', error);
     });
 });
-
-// 4. Utilidad para firmar la URL con SigV4 (necesario para AWS IoT)
-const SigV4Utils = {
-    getSignedUrl: function(endpoint, region, credentials) {
-        const time = new Date();
-        const dateStamp = time.toISOString().replace(/[-:]/g, '').replace(/\..*$/, '');
-        const amzdate = dateStamp + 'Z';
-        const service = 'iotdevicegateway';
-        const algorithm = 'AWS4-HMAC-SHA256';
-        const method = 'GET';
-        const canonicalUri = '/mqtt';
-        const host = endpoint.replace(/^wss:\/\//, '');
-        const credentialScope = dateStamp.substr(0,8) + '/' + region + '/' + service + '/aws4_request';
-        const canonicalQuerystring = 'X-Amz-Algorithm=' + algorithm +
-            '&X-Amz-Credential=' + encodeURIComponent(credentials.accessKeyId + '/' + credentialScope) +
-            '&X-Amz-Date=' + amzdate +
-            '&X-Amz-SignedHeaders=host';
-        const canonicalHeaders = 'host:' + host + '\n';
-        const payloadHash = AWS.util.crypto.sha256('', 'hex');
-        const canonicalRequest = method + '\n' + canonicalUri + '\n' + canonicalQuerystring + '\n' + canonicalHeaders + '\nhost\n' + payloadHash;
-        const stringToSign = algorithm + '\n' + amzdate + '\n' + credentialScope + '\n' + AWS.util.crypto.sha256(canonicalRequest, 'hex');
-        const signingKey = SigV4Utils.getSignatureKey(credentials.secretAccessKey, dateStamp.substr(0,8), region, service);
-        const signature = AWS.util.crypto.hmac(signingKey, stringToSign, 'hex');
-        return endpoint + '?' + canonicalQuerystring + '&X-Amz-Signature=' + signature + '&X-Amz-Security-Token=' + encodeURIComponent(credentials.sessionToken);
-    },
-    getSignatureKey: function(key, dateStamp, regionName, serviceName) {
-        const kDate = AWS.util.crypto.hmac('AWS4' + key, dateStamp, 'buffer');
-        const kRegion = AWS.util.crypto.hmac(kDate, regionName, 'buffer');
-        const kService = AWS.util.crypto.hmac(kRegion, serviceName, 'buffer');
-        const kSigning = AWS.util.crypto.hmac(kService, 'aws4_request', 'buffer');
-        return kSigning;
-    }
-};
