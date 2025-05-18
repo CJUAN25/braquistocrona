@@ -113,7 +113,8 @@ AWS.config.credentials.get(function(err) {
         return;
     }
     const clientId = 'webclient-' + Math.floor((Math.random() * 100000) + 1);
-    const device = awsIot.device({
+    // Cambia awsIot.device por window.awsIot.device para asegurar que la librería esté disponible
+    const device = window.awsIot.device({
         region: region,
         host: iotEndpoint.replace(/^wss:\/\//, '').replace(/\/mqtt$/, ''),
         clientId: clientId,
@@ -137,12 +138,10 @@ AWS.config.credentials.get(function(err) {
     });
 
     device.on('message', function(topic, payload) {
-        // Si el mensaje es JSON, puedes parsear y actualizar toda la UI
         try {
             const data = JSON.parse(payload.toString());
             updateUI(data);
         } catch (e) {
-            // Si no es JSON, solo actualiza el campo de hipérbola
             compHiper.textContent = payload.toString();
         }
     });
