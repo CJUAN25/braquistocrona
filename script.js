@@ -1,4 +1,4 @@
-const API_URL = 'http://35.169.234.161:1880/api/tiempos';
+const API_URL = 'https://cors-anywhere.herokuapp.com/http://35.169.234.161:1880/api/tiempos';
 const connectionStatus = document.getElementById('connection-status');
 const refreshButton = document.getElementById('refresh-button');
 
