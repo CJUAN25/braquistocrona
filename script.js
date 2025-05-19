@@ -66,11 +66,16 @@ function updateUI(data) {
     compBraq.textContent = data.final_braquistocrona + ' ms';
     compHiper.textContent = data.final_hiperbola + ' ms';
 
+    // Limpiar resultados previos
+    compRectaRes.textContent = '';
+    compBraqRes.textContent = '';
+    compHiperRes.textContent = '';
+
     // Ganador
     const tiempos = [
-        { nombre: 'recta', valor: data.final_recta },
-        { nombre: 'braquistocrona', valor: data.final_braquistocrona },
-        { nombre: 'hiperbola', valor: data.final_hiperbola }
+        { nombre: 'recta', valor: Number(data.final_recta) },
+        { nombre: 'braquistocrona', valor: Number(data.final_braquistocrona) },
+        { nombre: 'hiperbola', valor: Number(data.final_hiperbola) }
     ];
     const min = Math.min(...tiempos.map(t => t.valor));
     tiempos.forEach(t => {
@@ -86,9 +91,9 @@ function updateUI(data) {
     });
 
     // Mensaje adaptativo
-    if (min === data.final_braquistocrona) {
+    if (min === Number(data.final_braquistocrona)) {
         adaptiveMessage.textContent = `🎉 ¡La curva braquistócrona ha ganado con un tiempo de ${data.final_braquistocrona} ms!`;
-    } else if (min === data.final_recta) {
+    } else if (min === Number(data.final_recta)) {
         adaptiveMessage.textContent = `⚠️ ¡Sorpresa! La trayectoria recta ganó con ${data.final_recta} ms.`;
     } else {
         adaptiveMessage.textContent = `⚠️ ¡Sorpresa! La trayectoria hipérbola ganó con ${data.final_hiperbola} ms.`;
