@@ -1,4 +1,4 @@
-const API_URL = 'http://[IP_DEL_ESP32]/api/tiempos';
+const API_URL = 'http://35.169.234.161:1880/api/tiempos';
 const connectionStatus = document.getElementById('connection-status');
 const refreshButton = document.getElementById('refresh-button');
 
@@ -28,8 +28,19 @@ async function fetchData() {
         const response = await fetch(API_URL);
         if (!response.ok) throw new Error('Error en la conexión');
         const data = await response.json();
-        updateUI(data);
-        connectionStatus.textContent = `🟢 Conectado a ESP32: [IP]`;
+        // Adaptar los datos recibidos del endpoint Node-RED
+        updateUI({
+            inicio_recta: data.recta?.inicio ?? '-',
+            medio_recta: data.recta?.medio ?? '-',
+            final_recta: data.recta?.final ?? '-',
+            inicio_braquistocrona: data.braquistocrona?.inicio ?? '-',
+            medio_braquistocrona: data.braquistocrona?.medio ?? '-',
+            final_braquistocrona: data.braquistocrona?.final ?? '-',
+            inicio_hiperbola: data.hiperbola?.inicio ?? '-',
+            medio_hiperbola: data.hiperbola?.medio ?? '-',
+            final_hiperbola: data.hiperbola?.final ?? '-'
+        });
+        connectionStatus.textContent = `🟢 Conectado a Node-RED`;
         connectionStatus.classList.add('connected');
     } catch (error) {
         connectionStatus.textContent = '🔴 Desconectado';
@@ -94,61 +105,3 @@ function resetUI() {
 refreshButton.addEventListener('click', fetchData);
 setInterval(fetchData, 1000);
 fetchData();
-
-// --- AWS IoT Core MQTT sobre WebSocket usando Cognito y aws-iot-device-sdk ---
-const region = 'us-east-1';
-const identityPoolId = 'us-east-1:3513500b-d2a5-4c55-b502-6c0ff4c71c2b';
-const iotEndpoint = 'wss://aud5ctk8s2dkk-ats.iot.us-east-1.amazonaws.com/mqtt';
-const topic = 'topicC';
-
-AWS.config.region = region;
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: identityPoolId
-});
-
-AWS.config.credentials.get(function(err) {
-    if (err) {
-        console.error('Error obteniendo credenciales Cognito:', err);
-        connectionStatus.textContent = '🔴 Error de autenticación AWS';
-        return;
-    }
-    const clientId = 'webclient-' + Math.floor((Math.random() * 100000) + 1);
-    // Cambia awsIot.device por window.awsIot.device para asegurar que la librería esté disponible
-    const device = window.awsIot.device({
-        region: region,
-        host: iotEndpoint.replace(/^wss:\/\//, '').replace(/\/mqtt$/, ''),
-        clientId: clientId,
-        protocol: 'wss',
-        maximumReconnectTimeMs: 8000,
-        accessKeyId: AWS.config.credentials.accessKeyId,
-        secretKey: AWS.config.credentials.secretAccessKey,
-        sessionToken: AWS.config.credentials.sessionToken
-    });
-
-    device.on('connect', function() {
-        connectionStatus.textContent = '🟢 Conectado a AWS IoT';
-        connectionStatus.classList.add('connected');
-        device.subscribe(topic, undefined, function(err) {
-            if (err) {
-                console.error('Error al suscribirse:', err);
-            } else {
-                console.log('Suscrito a', topic);
-            }
-        });
-    });
-
-    device.on('message', function(topic, payload) {
-        try {
-            const data = JSON.parse(payload.toString());
-            updateUI(data);
-        } catch (e) {
-            compHiper.textContent = payload.toString();
-        }
-    });
-
-    device.on('error', function(error) {
-        connectionStatus.textContent = '🔴 Error de conexión AWS IoT';
-        connectionStatus.classList.remove('connected');
-        console.error('Error en AWS IoT:', error);
-    });
-});
