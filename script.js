@@ -192,32 +192,6 @@ function getSignedUrl({
   return signedUrl;
 }
 
-async function fetchData() {
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Error en la conexión');
-        const data = await response.json();
-        // Adaptar los datos recibidos del endpoint Node-RED
-        updateUI({
-            inicio_recta: data.recta?.inicio ?? '-',
-            medio_recta: data.recta?.medio ?? '-',
-            final_recta: data.recta?.final ?? '-',
-            inicio_braquistocrona: data.braquistocrona?.inicio ?? '-',
-            medio_braquistocrona: data.braquistocrona?.medio ?? '-',
-            final_braquistocrona: data.braquistocrona?.final ?? '-',
-            inicio_hiperbola: data.hiperbola?.inicio ?? '-',
-            medio_hiperbola: data.hiperbola?.medio ?? '-',
-            final_hiperbola: data.hiperbola?.final ?? '-'
-        });
-        connectionStatus.textContent = `🟢 Conectado a Node-RED`;
-        connectionStatus.classList.add('connected');
-    } catch (error) {
-        connectionStatus.textContent = '🔴 Desconectado';
-        connectionStatus.classList.remove('connected');
-        resetUI();
-    }
-}
-
 function updateUI(data) {
     // Tarjetas
     rectaInicio.textContent = data.inicio_recta + ' ms';
@@ -275,7 +249,3 @@ function resetUI() {
     [compRecta, compBraq, compHiper, compRectaRes, compBraqRes, compHiperRes].forEach(e => e.textContent = '–');
     adaptiveMessage.textContent = 'Esperando datos del ESP32…';
 }
-
-refreshButton.addEventListener('click', fetchData);
-setInterval(fetchData, 1000);
-fetchData();
