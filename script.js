@@ -86,21 +86,21 @@ AWS.config.credentials.get(function (err) {
       const data = JSON.parse(message.toString());
       if (topic === "modelo/recta") {
         trayectorias.recta = {
-          inicio: data.inicio ?? '-',
-          medio: data.medio ?? '-',
-          final: data.final ?? '-'
+          inicio: data.tiempo ?? '-',
+          medio: data.tiempo_medio ?? '-',
+          final: data.tiempo_final ?? '-'
         };
       } else if (topic === "modelo/braquistocrona") {
         trayectorias.braquistocrona = {
-          inicio: data.inicio ?? '-',
-          medio: data.medio ?? '-',
-          final: data.final ?? '-'
+          inicio: data.tiempo ?? '-',
+          medio: data.tiempo_medio ?? '-',
+          final: data.tiempo_final ?? '-'
         };
       } else if (topic === "modelo/hiperbola") {
         trayectorias.hiperbola = {
-          inicio: data.inicio ?? '-',
-          medio: data.medio ?? '-',
-          final: data.final ?? '-'
+          inicio: data.tiempo ?? '-',
+          medio: data.tiempo_medio ?? '-',
+          final: data.tiempo_final ?? '-'
         };
       }
       // Refresca la UI con todos los datos actuales
