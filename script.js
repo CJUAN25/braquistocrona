@@ -22,6 +22,13 @@ const compHiperRes = document.getElementById('comp-hiperbola-resultado');
 
 const adaptiveMessage = document.getElementById('adaptive-message');
 
+// Estado global para guardar los últimos datos de cada trayectoria
+const trayectorias = {
+  recta: { inicio: '-', medio: '-', final: '-' },
+  braquistocrona: { inicio: '-', medio: '-', final: '-' },
+  hiperbola: { inicio: '-', medio: '-', final: '-' }
+};
+
 // --- INTEGRACIÓN AWS IOT MQTT CON COGNITO ---
 AWS.config.region = "us-east-1";
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -78,42 +85,36 @@ AWS.config.credentials.get(function (err) {
     try {
       const data = JSON.parse(message.toString());
       if (topic === "modelo/recta") {
-        updateUI({
-          inicio_recta: data.inicio ?? '-',
-          medio_recta: data.medio ?? '-',
-          final_recta: data.final ?? '-',
-          inicio_braquistocrona: '-',
-          medio_braquistocrona: '-',
-          final_braquistocrona: '-',
-          inicio_hiperbola: '-',
-          medio_hiperbola: '-',
-          final_hiperbola: '-'
-        });
+        trayectorias.recta = {
+          inicio: data.inicio ?? '-',
+          medio: data.medio ?? '-',
+          final: data.final ?? '-'
+        };
       } else if (topic === "modelo/braquistocrona") {
-        updateUI({
-          inicio_recta: '-',
-          medio_recta: '-',
-          final_recta: '-',
-          inicio_braquistocrona: data.inicio ?? '-',
-          medio_braquistocrona: data.medio ?? '-',
-          final_braquistocrona: data.final ?? '-',
-          inicio_hiperbola: '-',
-          medio_hiperbola: '-',
-          final_hiperbola: '-'
-        });
+        trayectorias.braquistocrona = {
+          inicio: data.inicio ?? '-',
+          medio: data.medio ?? '-',
+          final: data.final ?? '-'
+        };
       } else if (topic === "modelo/hiperbola") {
-        updateUI({
-          inicio_recta: '-',
-          medio_recta: '-',
-          final_recta: '-',
-          inicio_braquistocrona: '-',
-          medio_braquistocrona: '-',
-          final_braquistocrona: '-',
-          inicio_hiperbola: data.inicio ?? '-',
-          medio_hiperbola: data.medio ?? '-',
-          final_hiperbola: '-'
-        });
+        trayectorias.hiperbola = {
+          inicio: data.inicio ?? '-',
+          medio: data.medio ?? '-',
+          final: data.final ?? '-'
+        };
       }
+      // Refresca la UI con todos los datos actuales
+      updateUI({
+        inicio_recta: trayectorias.recta.inicio,
+        medio_recta: trayectorias.recta.medio,
+        final_recta: trayectorias.recta.final,
+        inicio_braquistocrona: trayectorias.braquistocrona.inicio,
+        medio_braquistocrona: trayectorias.braquistocrona.medio,
+        final_braquistocrona: trayectorias.braquistocrona.final,
+        inicio_hiperbola: trayectorias.hiperbola.inicio,
+        medio_hiperbola: trayectorias.hiperbola.medio,
+        final_hiperbola: trayectorias.hiperbola.final
+      });
     } catch (e) {
       connectionStatus.textContent = '🔴 Error al procesar mensaje MQTT';
     }
@@ -248,3 +249,21 @@ function resetUI() {
     [compRecta, compBraq, compHiper, compRectaRes, compBraqRes, compHiperRes].forEach(e => e.textContent = '–');
     adaptiveMessage.textContent = 'Esperando datos del ESP32…';
 }
+
+// Botón para borrar todos los datos
+const clearButton = document.createElement('button');
+clearButton.textContent = 'Borrar datos';
+clearButton.id = 'clear-button';
+clearButton.style.marginLeft = '10px';
+refreshButton.parentNode.appendChild(clearButton);
+
+clearButton.addEventListener('click', function() {
+  trayectorias.recta = { inicio: '-', medio: '-', final: '-' };
+  trayectorias.braquistocrona = { inicio: '-', medio: '-', final: '-' };
+  trayectorias.hiperbola = { inicio: '-', medio: '-', final: '-' };
+  updateUI({
+    inicio_recta: '-', medio_recta: '-', final_recta: '-',
+    inicio_braquistocrona: '-', medio_braquistocrona: '-', final_braquistocrona: '-',
+    inicio_hiperbola: '-', medio_hiperbola: '-', final_hiperbola: '-'
+  });
+});
