@@ -250,12 +250,18 @@ function resetUI() {
     adaptiveMessage.textContent = 'Esperando datos del ESP32…';
 }
 
-// Botón para borrar todos los datos
+// Elimina el botón de actualizar y crea solo el botón de borrar datos, estilizado
 const clearButton = document.createElement('button');
 clearButton.textContent = 'Borrar datos';
 clearButton.id = 'clear-button';
-clearButton.style.marginLeft = '10px';
-refreshButton.parentNode.appendChild(clearButton);
+clearButton.className = 'clear-btn';
+// Elimina el botón de actualizar del DOM si existe
+if (refreshButton) refreshButton.remove();
+// Ubica el botón al lado de la tabla comparativa
+const comparisonSection = document.getElementById('comparison');
+if (comparisonSection) {
+  comparisonSection.appendChild(clearButton);
+}
 
 clearButton.addEventListener('click', function() {
   trayectorias.recta = { inicio: '-', medio: '-', final: '-' };
