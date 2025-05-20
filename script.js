@@ -260,7 +260,19 @@ if (refreshButton) refreshButton.remove();
 // Ubica el botón al lado de la tabla comparativa
 const comparisonSection = document.getElementById('comparison');
 if (comparisonSection) {
-  comparisonSection.appendChild(clearButton);
+  // Si ya existe un contenedor, no lo dupliques
+  let clearBtnContainer = document.getElementById('clear-btn-container');
+  if (!clearBtnContainer) {
+    clearBtnContainer = document.createElement('div');
+    clearBtnContainer.id = 'clear-btn-container';
+    clearBtnContainer.style.width = '100%';
+    clearBtnContainer.style.display = 'flex';
+    clearBtnContainer.style.justifyContent = 'center';
+    clearBtnContainer.style.alignItems = 'center';
+    clearBtnContainer.style.marginTop = '0';
+    comparisonSection.appendChild(clearBtnContainer);
+  }
+  clearBtnContainer.appendChild(clearButton);
 }
 
 clearButton.addEventListener('click', function() {
