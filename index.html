@@ -7,12 +7,20 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <button id="dark-mode-toggle" class="dark-toggle">🌙 Modo oscuro</button>
     <header>
+        <img src="Logouniamazonia (1).png" alt="Logo Universidad" class="header-logo">
         <h1>Resultados – Curva Braquistócrona</h1>
         <h2>Comparación de tiempos de descenso en tres trayectorias</h2>
         <div id="connection-status" class="status">🔴 Desconectado</div>
     </header>
     <main>
+        <section id="intro" class="intro-section">
+            <h2>¿Qué es la curva braquistócrona?</h2>
+            <p>
+                La curva braquistócrona es la trayectoria de descenso más rápida entre dos puntos bajo la gravedad, comparada con una recta o una hipérbola. Este experimento compara los tiempos de descenso de una esfera en tres trayectorias diferentes para demostrar este principio físico.
+            </p>
+        </section>
         <section id="cards">
             <div class="card" id="card-recta">
                 <div class="card-icon">📏</div>
@@ -75,6 +83,9 @@
             </table>
         </section>
         <section id="message">
+            <div id="spinner" class="spinner" style="display:none;">
+                <div class="loader"></div>
+            </div>
             <p id="adaptive-message">Esperando datos del ESP32…</p>
         </section>
     </main>

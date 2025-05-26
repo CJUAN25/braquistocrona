@@ -241,6 +241,7 @@ function updateUI(data) {
     } else {
         adaptiveMessage.textContent = `⚠️ ¡Sorpresa! La trayectoria hipérbola ganó con ${data.final_hiperbola} ms.`;
     }
+    hideSpinner(); // Oculta el spinner cuando llegan datos
 }
 
 function resetUI() {
@@ -248,7 +249,26 @@ function resetUI() {
     [rectaInicio, rectaMedio, rectaFinal, braqInicio, braqMedio, braqFinal, hiperInicio, hiperMedio, hiperFinal].forEach(e => e.textContent = '–');
     [compRecta, compBraq, compHiper, compRectaRes, compBraqRes, compHiperRes].forEach(e => e.textContent = '–');
     adaptiveMessage.textContent = 'Esperando datos del ESP32…';
+    showSpinner(); // Muestra el spinner cuando se reinicia
 }
+
+// Modo oscuro toggle
+const darkToggle = document.getElementById('dark-mode-toggle');
+darkToggle.addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    this.textContent = document.body.classList.contains('dark-mode') ? '☀️ Modo claro' : '🌙 Modo oscuro';
+});
+
+// Spinner de carga
+function showSpinner() {
+    document.getElementById('spinner').style.display = 'block';
+}
+function hideSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+}
+
+// Mostrar spinner al inicio
+showSpinner();
 
 // Elimina el botón de actualizar y crea solo el botón de borrar datos, estilizado
 const clearButton = document.createElement('button');
