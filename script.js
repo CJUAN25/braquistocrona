@@ -31,46 +31,34 @@ const trayectorias = {
 
 // --- NUEVA LÓGICA DE CONFIGURACIÓN Y CÁLCULOS ---
 window.addEventListener('DOMContentLoaded', () => {
-    // Cargar valores de localStorage o usar predeterminados
-    const d1Input = document.getElementById('d1');
-    const d2Input = document.getElementById('d2');
-    const masaInput = document.getElementById('masa');
-    if (localStorage.getItem('d1')) d1Input.value = localStorage.getItem('d1');
-    if (localStorage.getItem('d2')) d2Input.value = localStorage.getItem('d2');
-    if (localStorage.getItem('masa')) masaInput.value = localStorage.getItem('masa');
+    // Cargar valores de localStorage o usar predeterminados para cada trayectoria
+    const campos = [
+        'd1-recta','d2-recta','d1-braqui','d2-braqui','d1-hiper','d2-hiper','masa'
+    ];
+    campos.forEach(id => {
+        const input = document.getElementById(id);
+        if (input && localStorage.getItem(id)) input.value = localStorage.getItem(id);
+    });
 
     // Validación y guardado de configuración
     document.getElementById('config-form').addEventListener('submit', function(e) {
         e.preventDefault();
         let valid = true;
-        // Validar d1
-        if (!d1Input.value || Number(d1Input.value) <= 0) {
-            document.getElementById('d1-error').textContent = 'Valor inválido';
-            valid = false;
-        } else {
-            document.getElementById('d1-error').textContent = '';
-        }
-        // Validar d2
-        if (!d2Input.value || Number(d2Input.value) <= 0) {
-            document.getElementById('d2-error').textContent = 'Valor inválido';
-            valid = false;
-        } else {
-            document.getElementById('d2-error').textContent = '';
-        }
-        // Validar masa
-        if (!masaInput.value || Number(masaInput.value) <= 0) {
-            document.getElementById('masa-error').textContent = 'Valor inválido';
-            valid = false;
-        } else {
-            document.getElementById('masa-error').textContent = '';
-        }
+        campos.forEach(id => {
+            const input = document.getElementById(id);
+            const error = document.getElementById(id+'-error');
+            if (!input.value || Number(input.value) <= 0) {
+                error.textContent = 'Valor inválido';
+                valid = false;
+            } else {
+                error.textContent = '';
+            }
+        });
         if (!valid) return;
         // Guardar en localStorage
-        localStorage.setItem('d1', d1Input.value);
-        localStorage.setItem('d2', d2Input.value);
-        localStorage.setItem('masa', masaInput.value);
-        // Mensaje visual rápido
-        d1Input.blur(); d2Input.blur(); masaInput.blur();
+        campos.forEach(id => {
+            localStorage.setItem(id, document.getElementById(id).value);
+        });
         document.getElementById('save-config').textContent = '¡Guardado!';
         setTimeout(() => document.getElementById('save-config').textContent = 'Guardar configuración', 1200);
     });
@@ -130,9 +118,18 @@ function calcularMetricas(t_inicio, t_medio, t_final, d1_cm, d2_cm, masa_g) {
 
 // --- ACTUALIZAR UI CON NUEVAS MÉTRICAS ---
 function actualizarTarjeta(tray, t_inicio, t_medio, t_final) {
-    // Obtener configuración
-    const d1 = Number(localStorage.getItem('d1') || 50);
-    const d2 = Number(localStorage.getItem('d2') || 75);
+    // Obtener configuración específica por trayectoria
+    let d1 = 29, d2 = 29;
+    if (tray === 'recta') {
+        d1 = Number(localStorage.getItem('d1-recta') || 29);
+        d2 = Number(localStorage.getItem('d2-recta') || 29);
+    } else if (tray === 'braquistocrona') {
+        d1 = Number(localStorage.getItem('d1-braqui') || 30);
+        d2 = Number(localStorage.getItem('d2-braqui') || 29);
+    } else if (tray === 'hiperbola') {
+        d1 = Number(localStorage.getItem('d1-hiper') || 33);
+        d2 = Number(localStorage.getItem('d2-hiper') || 33);
+    }
     const masa = Number(localStorage.getItem('masa') || 30);
     const met = calcularMetricas(t_inicio, t_medio, t_final, d1, d2, masa);
     // IDs por trayectoria
