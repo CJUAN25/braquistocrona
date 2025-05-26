@@ -314,6 +314,39 @@ body.dark-mode .dark-toggle {
     background: #f6f7fb;
     color: #23272f;
 }
+body.dark-mode #comparison th,
+body.dark-mode #comparison td {
+    color: #b6ffb6 !important;
+    background: #23272f !important;
+    border-color: #3a3a3a !important;
+}
+body.dark-mode #comparison tr {
+    background: #23272f !important;
+}
+body.dark-mode #comparison table {
+    background: #23272f !important;
+}
+body.dark-mode .footer-creators,
+body.dark-mode .footer-info,
+body.dark-mode .footer-career,
+body.dark-mode .creators-list,
+body.dark-mode .footer-logo {
+    color: #b6ffb6 !important;
+    background: #23272f !important;
+}
+body.dark-mode .footer-creators strong,
+body.dark-mode .footer-info p,
+body.dark-mode .footer-career,
+body.dark-mode .creators-list li {
+    color: #b6ffb6 !important;
+}
+body.dark-mode .footer-logo {
+    filter: brightness(1.2) contrast(1.2);
+}
+body.dark-mode .footer-btn-container button {
+    background: #1a7f3c;
+    color: #fff;
+}
 
 @media (max-width: 900px) {
     #cards {
