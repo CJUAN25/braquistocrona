@@ -7,6 +7,28 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Sección de configuración del experimento -->
+    <section id="config-section">
+        <form id="config-form">
+            <h2>Configuración del experimento</h2>
+            <div class="config-row">
+                <label for="d1">Distancia Inicio → Medio (cm):</label>
+                <input type="number" id="d1" name="d1" min="1" value="50">
+                <span class="error-msg" id="d1-error"></span>
+            </div>
+            <div class="config-row">
+                <label for="d2">Distancia Medio → Final (cm):</label>
+                <input type="number" id="d2" name="d2" min="1" value="75">
+                <span class="error-msg" id="d2-error"></span>
+            </div>
+            <div class="config-row">
+                <label for="masa">Masa de la canica (g):</label>
+                <input type="number" id="masa" name="masa" min="1" value="30">
+                <span class="error-msg" id="masa-error"></span>
+            </div>
+            <button type="submit" id="save-config">Guardar configuración</button>
+        </form>
+    </section>
     <button id="dark-mode-toggle" class="dark-toggle">🌙 Modo oscuro</button>
     <header>
         <img src="Logouniamazonia (1).png" alt="Logo Universidad" class="header-logo">
@@ -22,6 +44,7 @@
             </p>
         </section>
         <section id="cards">
+            <!-- Tarjeta Recta -->
             <div class="card" id="card-recta">
                 <div class="card-icon">📏</div>
                 <div class="card-title">Recta</div>
@@ -31,7 +54,15 @@
                 <div class="card-value" id="recta-medio">–</div>
                 <div class="card-value-title">Final</div>
                 <div class="card-value" id="recta-final">–</div>
+                <div class="metrics">
+                    <p><span class="metric-label">Velocidad tramo 1:</span> <span id="recta-vel1">–</span> m/s</p>
+                    <p><span class="metric-label">Velocidad tramo 2:</span> <span id="recta-vel2">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Velocidad promedio:</span> <span id="recta-vavg">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Aceleración promedio:</span> <span id="recta-ace">–</span> m/s²</p>
+                    <p><span class="metric-label">Energía cinética final:</span> <span id="recta-ener">–</span> J</p>
+                </div>
             </div>
+            <!-- Tarjeta Braquistócrona -->
             <div class="card" id="card-braquistocrona">
                 <div class="card-icon">🌀</div>
                 <div class="card-title">Braquistócrona</div>
@@ -41,7 +72,15 @@
                 <div class="card-value" id="braquistocrona-medio">–</div>
                 <div class="card-value-title">Final</div>
                 <div class="card-value" id="braquistocrona-final">–</div>
+                <div class="metrics">
+                    <p><span class="metric-label">Velocidad tramo 1:</span> <span id="braqui-vel1">–</span> m/s</p>
+                    <p><span class="metric-label">Velocidad tramo 2:</span> <span id="braqui-vel2">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Velocidad promedio:</span> <span id="braqui-vavg">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Aceleración promedio:</span> <span id="braqui-ace">–</span> m/s²</p>
+                    <p><span class="metric-label">Energía cinética final:</span> <span id="braqui-ener">–</span> J</p>
+                </div>
             </div>
+            <!-- Tarjeta Hipérbola -->
             <div class="card" id="card-hiperbola">
                 <div class="card-icon">📈</div>
                 <div class="card-title">Hipérbola</div>
@@ -51,6 +90,13 @@
                 <div class="card-value" id="hiperbola-medio">–</div>
                 <div class="card-value-title">Final</div>
                 <div class="card-value" id="hiperbola-final">–</div>
+                <div class="metrics">
+                    <p><span class="metric-label">Velocidad tramo 1:</span> <span id="hiper-vel1">–</span> m/s</p>
+                    <p><span class="metric-label">Velocidad tramo 2:</span> <span id="hiper-vel2">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Velocidad promedio:</span> <span id="hiper-vavg">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Aceleración promedio:</span> <span id="hiper-ace">–</span> m/s²</p>
+                    <p><span class="metric-label">Energía cinética final:</span> <span id="hiper-ener">–</span> J</p>
+                </div>
             </div>
         </section>
         <section id="comparison">
@@ -60,6 +106,7 @@
                     <tr>
                         <th>Trayectoria</th>
                         <th>Tiempo Final (ms)</th>
+                        <th>Velocidad promedio (m/s)</th>
                         <th>Resultado</th>
                     </tr>
                 </thead>
@@ -67,20 +114,24 @@
                     <tr>
                         <td>Recta</td>
                         <td id="comp-recta">–</td>
+                        <td id="comp-recta-vavg">–</td>
                         <td id="comp-recta-resultado">–</td>
                     </tr>
                     <tr>
                         <td>Braquistócrona</td>
                         <td id="comp-braquistocrona">–</td>
+                        <td id="comp-braqui-vavg">–</td>
                         <td id="comp-braquistocrona-resultado">–</td>
                     </tr>
                     <tr>
                         <td>Hipérbola</td>
                         <td id="comp-hiperbola">–</td>
+                        <td id="comp-hiper-vavg">–</td>
                         <td id="comp-hiperbola-resultado">–</td>
                     </tr>
                 </tbody>
             </table>
+            <div id="winner-message" class="winner-message"></div>
         </section>
         <section id="message">
             <div id="spinner" class="spinner" style="display:none;">

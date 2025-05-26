@@ -348,6 +348,164 @@ body.dark-mode .footer-btn-container button {
     color: #fff;
 }
 
+#config-section {
+    background: #f0f7f4;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.06);
+    max-width: 600px;
+    margin: 2rem auto 2rem auto;
+    padding: 1.5rem 2rem 1rem 2rem;
+    animation: fadeIn 1s;
+}
+#config-section h2 {
+    margin-top: 0;
+    color: #137c3a;
+    font-size: 1.3rem;
+    text-align: center;
+}
+#config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.config-row {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.2rem;
+}
+#config-form label {
+    min-width: 180px;
+    font-weight: 500;
+}
+#config-form input[type="number"] {
+    width: 80px;
+    padding: 0.3em 0.5em;
+    border-radius: 6px;
+    border: 1px solid #b2b2b2;
+    font-size: 1rem;
+    background: #fff;
+    transition: border 0.2s;
+}
+#config-form input[type="number"]:focus {
+    border: 1.5px solid #137c3a;
+    outline: none;
+}
+#save-config {
+    margin: 0.5rem auto 0 auto;
+    background: #137c3a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5em 1.5em;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.2s;
+}
+#save-config:hover {
+    background: #0d5c28;
+}
+.error-msg {
+    color: #c62828;
+    font-size: 0.95em;
+    min-width: 80px;
+    height: 1.2em;
+    display: inline-block;
+}
+
+.metrics {
+    margin-top: 1rem;
+    background: #f6f7fb;
+    border-radius: 10px;
+    padding: 0.7em 0.8em;
+    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+    font-size: 0.98em;
+}
+.metric-label {
+    font-weight: 500;
+    color: #0d47a1;
+}
+.metric-label.highlight {
+    color: #137c3a;
+}
+
+.winner-message {
+    margin: 1.2em auto 0 auto;
+    text-align: center;
+    font-size: 1.15em;
+    font-weight: 600;
+    color: #137c3a;
+    background: #e8f5e9;
+    border-radius: 8px;
+    padding: 0.7em 1em;
+    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+    max-width: 420px;
+}
+
+body.dark-mode #config-section {
+    background: #23272f;
+    color: #b6ffb6;
+}
+body.dark-mode #config-form input[type="number"] {
+    background: #23272f;
+    color: #b6ffb6;
+    border: 1px solid #3a3a3a;
+}
+body.dark-mode #save-config {
+    background: #1a7f3c;
+    color: #fff;
+}
+body.dark-mode .metrics {
+    background: #23272f;
+    color: #b6ffb6;
+}
+body.dark-mode .metric-label {
+    color: #7ed957;
+}
+body.dark-mode .metric-label.highlight {
+    color: #b6ffb6;
+}
+body.dark-mode .winner-message {
+    background: #23272f;
+    color: #7ed957;
+}
+
+body.dark-mode #comparison th,
+body.dark-mode #comparison td {
+    color: #b6ffb6 !important;
+    background: #23272f !important;
+    border-color: #3a3a3a !important;
+}
+body.dark-mode #comparison tr {
+    background: #23272f !important;
+}
+body.dark-mode #comparison table {
+    background: #23272f !important;
+}
+body.dark-mode .footer-creators,
+body.dark-mode .footer-info,
+body.dark-mode .footer-career,
+body.dark-mode .creators-list,
+body.dark-mode .footer-logo {
+    color: #b6ffb6 !important;
+    background: #23272f !important;
+}
+body.dark-mode .footer-creators strong,
+body.dark-mode .footer-info p,
+body.dark-mode .footer-career,
+body.dark-mode .creators-list li {
+    color: #b6ffb6 !important;
+}
+body.dark-mode .footer-logo {
+    filter: brightness(1.2) contrast(1.2);
+}
+body.dark-mode .footer-btn-container button {
+    background: #1a7f3c;
+    color: #fff;
+}
+
 @media (max-width: 900px) {
     #cards {
         flex-direction: column;
@@ -359,8 +517,10 @@ body.dark-mode .footer-btn-container button {
         top: 12px;
         height: 36px;
     }
+    #config-section {
+        padding: 1rem 0.5rem;
+    }
 }
-
 @media (max-width: 600px) {
     .intro-section, #comparison {
         padding: 1rem 0.3rem;
@@ -369,5 +529,8 @@ body.dark-mode .footer-btn-container button {
         left: 6px;
         top: 6px;
         height: 28px;
+    }
+    #config-section {
+        padding: 0.7rem 0.2rem;
     }
 }

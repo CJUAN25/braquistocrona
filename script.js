@@ -29,24 +29,161 @@ const trayectorias = {
   hiperbola: { inicio: '-', medio: '-', final: '-' }
 };
 
-// --- INTEGRACIÓN AWS IOT MQTT CON COGNITO ---
+// --- NUEVA LÓGICA DE CONFIGURACIÓN Y CÁLCULOS ---
+window.addEventListener('DOMContentLoaded', () => {
+    // Cargar valores de localStorage o usar predeterminados
+    const d1Input = document.getElementById('d1');
+    const d2Input = document.getElementById('d2');
+    const masaInput = document.getElementById('masa');
+    if (localStorage.getItem('d1')) d1Input.value = localStorage.getItem('d1');
+    if (localStorage.getItem('d2')) d2Input.value = localStorage.getItem('d2');
+    if (localStorage.getItem('masa')) masaInput.value = localStorage.getItem('masa');
+
+    // Validación y guardado de configuración
+    document.getElementById('config-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let valid = true;
+        // Validar d1
+        if (!d1Input.value || Number(d1Input.value) <= 0) {
+            document.getElementById('d1-error').textContent = 'Valor inválido';
+            valid = false;
+        } else {
+            document.getElementById('d1-error').textContent = '';
+        }
+        // Validar d2
+        if (!d2Input.value || Number(d2Input.value) <= 0) {
+            document.getElementById('d2-error').textContent = 'Valor inválido';
+            valid = false;
+        } else {
+            document.getElementById('d2-error').textContent = '';
+        }
+        // Validar masa
+        if (!masaInput.value || Number(masaInput.value) <= 0) {
+            document.getElementById('masa-error').textContent = 'Valor inválido';
+            valid = false;
+        } else {
+            document.getElementById('masa-error').textContent = '';
+        }
+        if (!valid) return;
+        // Guardar en localStorage
+        localStorage.setItem('d1', d1Input.value);
+        localStorage.setItem('d2', d2Input.value);
+        localStorage.setItem('masa', masaInput.value);
+        // Mensaje visual rápido
+        d1Input.blur(); d2Input.blur(); masaInput.blur();
+        document.getElementById('save-config').textContent = '¡Guardado!';
+        setTimeout(() => document.getElementById('save-config').textContent = 'Guardar configuración', 1200);
+    });
+});
+
+// --- MODO OSCURO ---
+const darkToggle = document.getElementById('dark-mode-toggle');
+darkToggle.addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    this.textContent = document.body.classList.contains('dark-mode') ? '☀️ Modo claro' : '🌙 Modo oscuro';
+});
+
+// --- SPINNER DE CARGA ---
+function showSpinner() {
+    document.getElementById('spinner').style.display = 'block';
+}
+function hideSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+}
+showSpinner();
+
+// --- INDICADOR DE CONEXIÓN ---
+function setConnectionStatus(connected) {
+    const el = document.getElementById('connection-status');
+    if (connected) {
+        el.textContent = '🟢 Conectado a AWS IoT Core';
+        el.classList.add('connected');
+    } else {
+        el.textContent = '🔴 Desconectado';
+        el.classList.remove('connected');
+    }
+}
+
+// --- CÁLCULOS FÍSICOS ---
+function calcularMetricas(t_inicio, t_medio, t_final, d1_cm, d2_cm, masa_g) {
+    // Convertir a segundos y metros
+    const d1_m = d1_cm / 100;
+    const d2_m = d2_cm / 100;
+    const masa_kg = masa_g / 1000;
+    const t1 = (t_medio - t_inicio) / 1000;
+    const t2 = (t_final - t_medio) / 1000;
+    const t_total = (t_final - t_inicio) / 1000;
+    // Evitar divisiones por cero o negativas
+    const v1 = t1 > 0 ? d1_m / t1 : 0;
+    const v2 = t2 > 0 ? d2_m / t2 : 0;
+    const v_avg = t_total > 0 ? (d1_m + d2_m) / t_total : 0;
+    const a = t_total > 0 ? (2 * (d1_m + d2_m)) / (t_total * t_total) : 0;
+    const E_k = 0.5 * masa_kg * v_avg * v_avg;
+    return {
+        v1: isFinite(v1) ? v1 : 0,
+        v2: isFinite(v2) ? v2 : 0,
+        v_avg: isFinite(v_avg) ? v_avg : 0,
+        a: isFinite(a) ? a : 0,
+        E_k: isFinite(E_k) ? E_k : 0
+    };
+}
+
+// --- ACTUALIZAR UI CON NUEVAS MÉTRICAS ---
+function actualizarTarjeta(tray, t_inicio, t_medio, t_final) {
+    // Obtener configuración
+    const d1 = Number(localStorage.getItem('d1') || 50);
+    const d2 = Number(localStorage.getItem('d2') || 75);
+    const masa = Number(localStorage.getItem('masa') || 30);
+    const met = calcularMetricas(t_inicio, t_medio, t_final, d1, d2, masa);
+    // IDs por trayectoria
+    let prefix = '';
+    if (tray === 'recta') prefix = 'recta';
+    if (tray === 'braquistocrona') prefix = 'braqui';
+    if (tray === 'hiperbola') prefix = 'hiper';
+    document.getElementById(`${prefix}-vel1`).textContent = met.v1 ? met.v1.toFixed(2) : '–';
+    document.getElementById(`${prefix}-vel2`).textContent = met.v2 ? met.v2.toFixed(2) : '–';
+    document.getElementById(`${prefix}-vavg`).textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    document.getElementById(`${prefix}-ace`).textContent = met.a ? met.a.toFixed(2) : '–';
+    document.getElementById(`${prefix}-ener`).textContent = met.E_k ? met.E_k.toFixed(2) : '–';
+    // También actualizar tabla comparativa
+    if (tray === 'recta') document.getElementById('comp-recta-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    if (tray === 'braquistocrona') document.getElementById('comp-braqui-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    if (tray === 'hiperbola') document.getElementById('comp-hiper-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    return met.v_avg;
+}
+
+// --- GANADOR ---
+function actualizarGanador() {
+    const vRecta = parseFloat(document.getElementById('comp-recta-vavg').textContent) || 0;
+    const vBraqui = parseFloat(document.getElementById('comp-braqui-vavg').textContent) || 0;
+    const vHiper = parseFloat(document.getElementById('comp-hiper-vavg').textContent) || 0;
+    let max = Math.max(vRecta, vBraqui, vHiper);
+    let ganador = '';
+    if (max === 0) {
+        document.getElementById('winner-message').textContent = '';
+        return;
+    }
+    if (max === vRecta) ganador = 'Recta';
+    if (max === vBraqui) ganador = 'Braquistócrona';
+    if (max === vHiper) ganador = 'Hipérbola';
+    document.getElementById('winner-message').textContent = `🥇 La curva ganadora fue: ${ganador} (velocidad promedio: ${max.toFixed(2)} m/s)`;
+}
+
+// --- INTEGRACIÓN AWS IOT MQTT CON COGNITO (NO MODIFICAR) ---
 AWS.config.region = "us-east-1";
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
   IdentityPoolId: "us-east-1:5b759c5d-979e-4b61-9b47-bb5056bef846",
 });
-
 AWS.config.credentials.get(function (err) {
   if (err) {
-    connectionStatus.textContent = '🔴 Error al obtener credenciales AWS';
+    setConnectionStatus(false);
     return;
   }
-
   const accessKeyId = AWS.config.credentials.accessKeyId;
   const secretKey = AWS.config.credentials.secretAccessKey;
   const sessionToken = AWS.config.credentials.sessionToken;
   const endpoint = "wss://aud5ctk8s2dkk-ats.iot.us-east-1.amazonaws.com/mqtt";
   const clientId = "webClient-" + (Math.floor(Math.random() * 100000) + 1);
-
   const signRequest = getSignedUrl({
     accessKeyId,
     secretKey,
@@ -56,7 +193,6 @@ AWS.config.credentials.get(function (err) {
     path: "/mqtt",
     service: "iotdevicegateway",
   });
-
   const client = mqtt.connect(signRequest, {
     clientId,
     protocol: "wss",
@@ -71,58 +207,61 @@ AWS.config.credentials.get(function (err) {
     connectTimeout: 30 * 1000,
     resubscribe: true,
   });
-
   client.on("connect", function () {
-    connectionStatus.textContent = '🟢 Conectado a AWS IoT';
-    connectionStatus.classList.add('connected');
+    setConnectionStatus(true);
     // Suscribirse a los topics de interés
     client.subscribe("modelo/recta");
     client.subscribe("modelo/braquistocrona");
     client.subscribe("modelo/hiperbola");
+    hideSpinner();
   });
-
+  client.on("close", function () {
+    setConnectionStatus(false);
+  });
+  client.on("offline", function () {
+    setConnectionStatus(false);
+  });
+  client.on("reconnect", function () {
+    setConnectionStatus(false);
+  });
+  client.on("error", function () {
+    setConnectionStatus(false);
+  });
   client.on("message", function (topic, message) {
     try {
       const data = JSON.parse(message.toString());
-      if (topic === "modelo/recta") {
-        trayectorias.recta = {
-          inicio: data.tiempo ?? '-',
-          medio: data.tiempo_medio ?? '-',
-          final: data.tiempo_final ?? '-'
-        };
-      } else if (topic === "modelo/braquistocrona") {
-        trayectorias.braquistocrona = {
-          inicio: data.tiempo ?? '-',
-          medio: data.tiempo_medio ?? '-',
-          final: data.tiempo_final ?? '-'
-        };
-      } else if (topic === "modelo/hiperbola") {
-        trayectorias.hiperbola = {
-          inicio: data.tiempo ?? '-',
-          medio: data.tiempo_medio ?? '-',
-          final: data.tiempo_final ?? '-'
-        };
+      // Esperado: { t_inicio, t_medio, t_final }
+      let tray = '';
+      if (topic === "modelo/recta") tray = 'recta';
+      if (topic === "modelo/braquistocrona") tray = 'braquistocrona';
+      if (topic === "modelo/hiperbola") tray = 'hiperbola';
+      // Actualizar tiempos
+      if (tray === 'recta') {
+        document.getElementById('recta-inicio').textContent = data.t_inicio ?? '–';
+        document.getElementById('recta-medio').textContent = data.t_medio ?? '–';
+        document.getElementById('recta-final').textContent = data.t_final ?? '–';
+        document.getElementById('comp-recta').textContent = data.t_final ?? '–';
       }
-      // Refresca la UI con todos los datos actuales
-      updateUI({
-        inicio_recta: trayectorias.recta.inicio,
-        medio_recta: trayectorias.recta.medio,
-        final_recta: trayectorias.recta.final,
-        inicio_braquistocrona: trayectorias.braquistocrona.inicio,
-        medio_braquistocrona: trayectorias.braquistocrona.medio,
-        final_braquistocrona: trayectorias.braquistocrona.final,
-        inicio_hiperbola: trayectorias.hiperbola.inicio,
-        medio_hiperbola: trayectorias.hiperbola.medio,
-        final_hiperbola: trayectorias.hiperbola.final
-      });
+      if (tray === 'braquistocrona') {
+        document.getElementById('braquistocrona-inicio').textContent = data.t_inicio ?? '–';
+        document.getElementById('braquistocrona-medio').textContent = data.t_medio ?? '–';
+        document.getElementById('braquistocrona-final').textContent = data.t_final ?? '–';
+        document.getElementById('comp-braquistocrona').textContent = data.t_final ?? '–';
+      }
+      if (tray === 'hiperbola') {
+        document.getElementById('hiperbola-inicio').textContent = data.t_inicio ?? '–';
+        document.getElementById('hiperbola-medio').textContent = data.t_medio ?? '–';
+        document.getElementById('hiperbola-final').textContent = data.t_final ?? '–';
+        document.getElementById('comp-hiperbola').textContent = data.t_final ?? '–';
+      }
+      // Cálculos físicos y actualización de métricas
+      if (data.t_inicio && data.t_medio && data.t_final) {
+        actualizarTarjeta(tray, data.t_inicio, data.t_medio, data.t_final);
+        actualizarGanador();
+      }
     } catch (e) {
-      connectionStatus.textContent = '🔴 Error al procesar mensaje MQTT';
+      // Error de parseo
     }
-  });
-
-  client.on("error", function (error) {
-    connectionStatus.textContent = '🔴 Error de conexión AWS IoT';
-    connectionStatus.classList.remove('connected');
   });
 });
 
@@ -251,13 +390,6 @@ function resetUI() {
     adaptiveMessage.textContent = 'Esperando datos del ESP32…';
     showSpinner(); // Muestra el spinner cuando se reinicia
 }
-
-// Modo oscuro toggle
-const darkToggle = document.getElementById('dark-mode-toggle');
-darkToggle.addEventListener('click', function() {
-    document.body.classList.toggle('dark-mode');
-    this.textContent = document.body.classList.contains('dark-mode') ? '☀️ Modo claro' : '🌙 Modo oscuro';
-});
 
 // Spinner de carga
 function showSpinner() {
