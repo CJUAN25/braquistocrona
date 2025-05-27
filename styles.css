@@ -258,6 +258,16 @@ header h2 {
     margin-bottom: 1.2rem;
     width: 100%;
 }
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+#comparison table {
+    min-width: 600px;
+    width: 100%;
+    max-width: 100%;
+    table-layout: auto;
+}
 #comparison table {
     width: 100%;
     max-width: 800px;
