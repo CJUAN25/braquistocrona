@@ -241,6 +241,9 @@ function updateUI(data) {
     } else {
         adaptiveMessage.textContent = `⚠️ ¡Sorpresa! La trayectoria hipérbola ganó con ${data.final_hiperbola} ms.`;
     }
+
+    // Actualiza la gráfica después de actualizar la tabla
+    actualizarGrafica();
 }
 
 function resetUI() {
@@ -285,3 +288,77 @@ clearButton.addEventListener('click', function() {
     inicio_hiperbola: '-', medio_hiperbola: '-', final_hiperbola: '-'
   });
 });
+
+// Gráfica Chart.js para mostrar velocidades y tiempos
+// Se actualiza automáticamente al recibir datos nuevos
+let chart;
+function actualizarGrafica() {
+    // Obtener datos de la tabla comparativa
+    const labels = ['Recta', 'Braquistócrona', 'Hipérbola'];
+    const tiempos = [
+        parseFloat(document.getElementById('comp-recta').textContent) || 0,
+        parseFloat(document.getElementById('comp-braquistocrona').textContent) || 0,
+        parseFloat(document.getElementById('comp-hiperbola').textContent) || 0
+    ];
+    const velocidades = [
+        parseFloat(document.getElementById('comp-recta-vavg').textContent) || 0,
+        parseFloat(document.getElementById('comp-braqui-vavg').textContent) || 0,
+        parseFloat(document.getElementById('comp-hiper-vavg').textContent) || 0
+    ];
+    const ctx = document.getElementById('resultChart').getContext('2d');
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Tiempo Final (ms)',
+                    data: tiempos,
+                    backgroundColor: ['#1976d2cc','#2e7d32cc','#ffb300cc'],
+                    borderRadius: 8,
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Velocidad promedio (m/s)',
+                    data: velocidades,
+                    backgroundColor: ['#1976d2','#2e7d32','#ffb300'],
+                    borderRadius: 8,
+                    yAxisID: 'y1',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top', labels: { font: { family: 'Inter', size: 14 } } },
+                title: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Tiempo (ms)', color: '#1976d2', font: { family: 'Inter', weight: 'bold' } },
+                    grid: { color: '#e0e0e0' },
+                    ticks: { color: '#1976d2', font: { family: 'Inter' } }
+                },
+                y1: {
+                    beginAtZero: true,
+                    position: 'right',
+                    title: { display: true, text: 'Velocidad (m/s)', color: '#2e7d32', font: { family: 'Inter', weight: 'bold' } },
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#2e7d32', font: { family: 'Inter' } }
+                }
+            }
+        }
+    });
+}
+
+// Llama a actualizarGrafica() cada vez que se actualizan los datos de la tabla
+// Puedes llamarlo al final de actualizarTarjeta o actualizarGanador
+
+function actualizarTarjeta(tray, t_inicio, t_medio, t_final) {
+    // ...existing code...
+    // Actualiza la gráfica después de actualizar la tabla
+    actualizarGrafica();
+    // ...existing code...
+}
