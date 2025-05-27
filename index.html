@@ -7,57 +7,6 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Sección de configuración del experimento -->
-    <section id="config-section">
-        <form id="config-form">
-            <h2>Configuración del experimento</h2>
-            <div class="config-group">
-                <h3>Recta</h3>
-                <div class="config-row">
-                    <label for="d1-recta">Distancia Inicio → Medio (cm):</label>
-                    <input type="number" id="d1-recta" min="1" value="29">
-                    <span class="error-msg" id="d1-recta-error"></span>
-                </div>
-                <div class="config-row">
-                    <label for="d2-recta">Distancia Medio → Final (cm):</label>
-                    <input type="number" id="d2-recta" min="1" value="29">
-                    <span class="error-msg" id="d2-recta-error"></span>
-                </div>
-            </div>
-            <div class="config-group">
-                <h3>Braquistócrona</h3>
-                <div class="config-row">
-                    <label for="d1-braqui">Distancia Inicio → Medio (cm):</label>
-                    <input type="number" id="d1-braqui" min="1" value="30">
-                    <span class="error-msg" id="d1-braqui-error"></span>
-                </div>
-                <div class="config-row">
-                    <label for="d2-braqui">Distancia Medio → Final (cm):</label>
-                    <input type="number" id="d2-braqui" min="1" value="29">
-                    <span class="error-msg" id="d2-braqui-error"></span>
-                </div>
-            </div>
-            <div class="config-group">
-                <h3>Hipérbola</h3>
-                <div class="config-row">
-                    <label for="d1-hiper">Distancia Inicio → Medio (cm):</label>
-                    <input type="number" id="d1-hiper" min="1" value="33">
-                    <span class="error-msg" id="d1-hiper-error"></span>
-                </div>
-                <div class="config-row">
-                    <label for="d2-hiper">Distancia Medio → Final (cm):</label>
-                    <input type="number" id="d2-hiper" min="1" value="33">
-                    <span class="error-msg" id="d2-hiper-error"></span>
-                </div>
-            </div>
-            <div class="config-row">
-                <label for="masa">Masa de la canica (g):</label>
-                <input type="number" id="masa" min="1" value="30">
-                <span class="error-msg" id="masa-error"></span>
-            </div>
-            <button type="submit" id="save-config">Guardar configuración</button>
-        </form>
-    </section>
     <button id="dark-mode-toggle" class="dark-toggle">🌙 Modo oscuro</button>
     <header>
         <img src="Logouniamazonia (1).png" alt="Logo Universidad" class="header-logo">
@@ -65,6 +14,57 @@
         <h2>Comparación de tiempos de descenso en tres trayectorias</h2>
         <div id="connection-status" class="status">🔴 Desconectado</div>
     </header>
+    <!-- Sección de configuración del experimento -->
+    <section id="config-section">
+        <form id="config-form">
+            <h2>Configuración del experimento</h2>
+            <div class="config-row-horizontal">
+                <div class="config-group">
+                    <h3>Recta</h3>
+                    <label>Inicio→Medio
+                        <input type="number" id="d1-recta" min="1" value="29">
+                        <span class="error-msg" id="d1-recta-error"></span>
+                    </label>
+                    <label>Medio→Final
+                        <input type="number" id="d2-recta" min="1" value="29">
+                        <span class="error-msg" id="d2-recta-error"></span>
+                    </label>
+                </div>
+                <div class="config-group">
+                    <h3>Braquistócrona</h3>
+                    <label>Inicio→Medio
+                        <input type="number" id="d1-braqui" min="1" value="30">
+                        <span class="error-msg" id="d1-braqui-error"></span>
+                    </label>
+                    <label>Medio→Final
+                        <input type="number" id="d2-braqui" min="1" value="29">
+                        <span class="error-msg" id="d2-braqui-error"></span>
+                    </label>
+                </div>
+                <div class="config-group">
+                    <h3>Hipérbola</h3>
+                    <label>Inicio→Medio
+                        <input type="number" id="d1-hiper" min="1" value="33">
+                        <span class="error-msg" id="d1-hiper-error"></span>
+                    </label>
+                    <label>Medio→Final
+                        <input type="number" id="d2-hiper" min="1" value="33">
+                        <span class="error-msg" id="d2-hiper-error"></span>
+                    </label>
+                </div>
+                <div class="config-group">
+                    <h3>Masa</h3>
+                    <label>Canica (g)
+                        <input type="number" id="masa" min="1" value="30">
+                        <span class="error-msg" id="masa-error"></span>
+                    </label>
+                </div>
+            </div>
+            <div style="text-align:center; margin-top:1rem;">
+                <button type="submit" id="save-config">Guardar configuración</button>
+            </div>
+        </form>
+    </section>
     <main>
         <section id="intro" class="intro-section">
             <h2>¿Qué es la curva braquistócrona?</h2>
