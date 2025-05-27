@@ -146,6 +146,58 @@ function actualizarTarjeta(tray, t_inicio, t_medio, t_final) {
     if (tray === 'recta') document.getElementById('comp-recta-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
     if (tray === 'braquistocrona') document.getElementById('comp-braqui-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
     if (tray === 'hiperbola') document.getElementById('comp-hiper-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    // --- GRÁFICA MODERNA CON CHART.JS ---
+    let chart;
+    function actualizarGrafica() {
+        const ctx = document.getElementById('resultChart').getContext('2d');
+        const labels = ['Recta', 'Braquistócrona', 'Hipérbola'];
+        const tiempos = [
+            parseFloat(document.getElementById('comp-recta').textContent) || 0,
+            parseFloat(document.getElementById('comp-braquistocrona').textContent) || 0,
+            parseFloat(document.getElementById('comp-hiperbola').textContent) || 0
+        ];
+        const vprom = [
+            parseFloat(document.getElementById('comp-recta-vavg').textContent) || 0,
+            parseFloat(document.getElementById('comp-braqui-vavg').textContent) || 0,
+            parseFloat(document.getElementById('comp-hiper-vavg').textContent) || 0
+        ];
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Tiempo Final (ms)',
+                        data: tiempos,
+                        backgroundColor: 'rgba(19, 124, 58, 0.7)',
+                        borderRadius: 8,
+                    },
+                    {
+                        label: 'Velocidad Promedio (m/s)',
+                        data: vprom,
+                        backgroundColor: 'rgba(13, 71, 161, 0.7)',
+                        borderRadius: 8,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true, labels: { font: { family: 'Inter', size: 14 } } },
+                    title: { display: false }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: '#e0e0e0' }, beginAtZero: true }
+                },
+                animation: { duration: 900, easing: 'easeOutQuart' }
+            }
+        });
+    }
+
+    // Llama a actualizarGrafica cada vez que se actualizan los resultados
+    actualizarGrafica();
     return met.v_avg;
 }
 
@@ -434,3 +486,13 @@ clearButton.addEventListener('click', function() {
     inicio_hiperbola: '-', medio_hiperbola: '-', final_hiperbola: '-'
   });
 });
+
+// Cargar Chart.js dinámicamente si no está
+(function cargarChartJs() {
+    if (!window.Chart) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = () => setTimeout(actualizarGrafica, 500);
+        document.head.appendChild(script);
+    }
+})();
