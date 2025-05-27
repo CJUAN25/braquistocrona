@@ -41,7 +41,9 @@
     <header>
         <h1>Resultados – Curva Braquistócrona</h1>
         <h2>Comparación de tiempos de descenso en tres trayectorias</h2>
-        <div id="connection-status" class="status pulse">🔴 Desconectado</div>
+        <div id="connection-status" class="status pulse" aria-live="polite" aria-atomic="true" role="status">
+            <span class="visually-hidden">Estado de conexión: </span>🔴 Desconectado
+        </div>
     </header>
     <main>
         <!-- Formulario de configuración moderno -->
@@ -161,13 +163,15 @@
         <hr class="section-divider">
         <!-- Tabla comparativa -->
         <section id="comparison" class="card fade-in">
-            <h3>Comparativa de Tiempos Finales</h3>
+            <h3>Comparativa de Tiempos Finales y Magnitudes Físicas</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Trayectoria</th>
                         <th>Tiempo Final (ms)</th>
                         <th>Velocidad promedio (m/s)</th>
+                        <th>Aceleración media (m/s²)</th>
+                        <th>Energía cinética final (J)</th>
                         <th>Resultado</th>
                     </tr>
                 </thead>
@@ -176,18 +180,24 @@
                         <td>Recta</td>
                         <td id="comp-recta">–</td>
                         <td id="comp-recta-vavg">–</td>
+                        <td id="comp-recta-ace">–</td>
+                        <td id="comp-recta-ener">–</td>
                         <td id="comp-recta-resultado">–</td>
                     </tr>
                     <tr>
                         <td>Braquistócrona</td>
                         <td id="comp-braquistocrona">–</td>
                         <td id="comp-braqui-vavg">–</td>
+                        <td id="comp-braqui-ace">–</td>
+                        <td id="comp-braqui-ener">–</td>
                         <td id="comp-braquistocrona-resultado">–</td>
                     </tr>
                     <tr>
                         <td>Hipérbola</td>
                         <td id="comp-hiperbola">–</td>
                         <td id="comp-hiper-vavg">–</td>
+                        <td id="comp-hiper-ace">–</td>
+                        <td id="comp-hiper-ener">–</td>
                         <td id="comp-hiperbola-resultado">–</td>
                     </tr>
                 </tbody>

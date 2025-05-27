@@ -208,6 +208,10 @@ function updateUI(data) {
     compRecta.textContent = data.final_recta + ' ms';
     compBraq.textContent = data.final_braquistocrona + ' ms';
     compHiper.textContent = data.final_hiperbola + ' ms';
+    // Actualizar nuevas columnas de la tabla comparativa
+    actualizarTarjeta('recta', Number(data.inicio_recta), Number(data.medio_recta), Number(data.final_recta));
+    actualizarTarjeta('braquistocrona', Number(data.inicio_braquistocrona), Number(data.medio_braquistocrona), Number(data.final_braquistocrona));
+    actualizarTarjeta('hiperbola', Number(data.inicio_hiperbola), Number(data.medio_hiperbola), Number(data.final_hiperbola));
 
     // Limpiar resultados previos
     compRectaRes.textContent = '';
@@ -372,18 +376,21 @@ window.addEventListener('DOMContentLoaded', () => {
         let valid = true;
         if (!d1Input.value || Number(d1Input.value) <= 0) {
             document.getElementById('d1-error').textContent = 'Valor inválido';
+            document.getElementById('d1-error').setAttribute('aria-live', 'polite');
             valid = false;
         } else {
             document.getElementById('d1-error').textContent = '';
         }
         if (!d2Input.value || Number(d2Input.value) <= 0) {
             document.getElementById('d2-error').textContent = 'Valor inválido';
+            document.getElementById('d2-error').setAttribute('aria-live', 'polite');
             valid = false;
         } else {
             document.getElementById('d2-error').textContent = '';
         }
         if (!masaInput.value || Number(masaInput.value) <= 0) {
             document.getElementById('masa-error').textContent = 'Valor inválido';
+            document.getElementById('masa-error').setAttribute('aria-live', 'polite');
             valid = false;
         } else {
             document.getElementById('masa-error').textContent = '';
@@ -393,6 +400,7 @@ window.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('d2', d2Input.value);
         localStorage.setItem('masa', masaInput.value);
         successMsg.textContent = 'Configuración guardada correctamente';
+        successMsg.setAttribute('aria-live', 'polite');
         setTimeout(() => successMsg.textContent = '', 2000);
     });
 });
