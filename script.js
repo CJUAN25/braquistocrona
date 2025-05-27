@@ -29,24 +29,147 @@ const trayectorias = {
   hiperbola: { inicio: '-', medio: '-', final: '-' }
 };
 
-// --- INTEGRACIÓN AWS IOT MQTT CON COGNITO ---
+// --- NUEVA LÓGICA DE CONFIGURACIÓN Y CÁLCULOS ---
+window.addEventListener('DOMContentLoaded', () => {
+    // Cargar valores de localStorage o usar predeterminados para cada trayectoria
+    const campos = [
+        'd1-recta', 'd2-recta', 'd1-braqui', 'd2-braqui', 'd1-hiper', 'd2-hiper', 'masa'
+    ];
+    campos.forEach(id => {
+        if (localStorage.getItem(id)) {
+            document.getElementById(id).value = localStorage.getItem(id);
+        }
+    });
+
+    // Validación y guardado de configuración
+    document.getElementById('config-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let valid = true;
+        campos.forEach(id => {
+            const input = document.getElementById(id);
+            const error = document.getElementById(id + '-error');
+            if (!input.value || Number(input.value) <= 0) {
+                error.textContent = 'Valor inválido';
+                valid = false;
+            } else {
+                error.textContent = '';
+            }
+        });
+        if (!valid) return;
+        // Guardar en localStorage
+        campos.forEach(id => {
+            localStorage.setItem(id, document.getElementById(id).value);
+        });
+        document.getElementById('save-config').textContent = '¡Guardado!';
+        setTimeout(() => document.getElementById('save-config').textContent = 'Guardar configuración', 1200);
+    });
+});
+
+// --- MODO OSCURO ---
+const darkToggle = document.getElementById('dark-mode-toggle');
+darkToggle.addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    this.textContent = document.body.classList.contains('dark-mode') ? '☀️ Modo claro' : '🌙 Modo oscuro';
+});
+
+// --- SPINNER DE CARGA ---
+function showSpinner() {
+    document.getElementById('spinner').style.display = 'block';
+}
+function hideSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+}
+showSpinner();
+
+// --- INDICADOR DE CONEXIÓN ---
+function setConnectionStatus(connected) {
+    const el = document.getElementById('connection-status');
+    if (connected) {
+        el.textContent = '🟢 Conectado a AWS IoT Core';
+        el.classList.add('connected');
+    } else {
+        el.textContent = '🔴 Desconectado';
+        el.classList.remove('connected');
+    }
+}
+
+// --- CÁLCULOS FÍSICOS ---
+function calcularMetricasTrayectoria(tray, t_inicio, t_medio, t_final) {
+    // Obtener configuración específica
+    const d1 = Number(localStorage.getItem(`d1-${tray}`) || document.getElementById(`d1-${tray}`).value);
+    const d2 = Number(localStorage.getItem(`d2-${tray}`) || document.getElementById(`d2-${tray}`).value);
+    const masa = Number(localStorage.getItem('masa') || document.getElementById('masa').value);
+    const d1_m = d1 / 100;
+    const d2_m = d2 / 100;
+    const masa_kg = masa / 1000;
+    const t1 = (t_medio - t_inicio) / 1000;
+    const t2 = (t_final - t_medio) / 1000;
+    const t_total = (t_final - t_inicio) / 1000;
+    const v1 = t1 > 0 ? d1_m / t1 : 0;
+    const v2 = t2 > 0 ? d2_m / t2 : 0;
+    const v_avg = t_total > 0 ? (d1_m + d2_m) / t_total : 0;
+    const a = t_total > 0 ? (2 * (d1_m + d2_m)) / (t_total * t_total) : 0;
+    const E_k = 0.5 * masa_kg * v_avg * v_avg;
+    return {
+        v1: isFinite(v1) ? v1 : 0,
+        v2: isFinite(v2) ? v2 : 0,
+        v_avg: isFinite(v_avg) ? v_avg : 0,
+        a: isFinite(a) ? a : 0,
+        E_k: isFinite(E_k) ? E_k : 0
+    };
+}
+
+// --- ACTUALIZAR UI CON NUEVAS MÉTRICAS ---
+function actualizarTarjeta(tray, t_inicio, t_medio, t_final) {
+    // tray: 'recta', 'braqui', 'hiper'
+    const met = calcularMetricasTrayectoria(tray, t_inicio, t_medio, t_final);
+    let prefix = tray;
+    if (tray === 'braqui') prefix = 'braqui';
+    if (tray === 'hiper') prefix = 'hiper';
+    document.getElementById(`${prefix}-vel1`).textContent = met.v1 ? met.v1.toFixed(2) : '–';
+    document.getElementById(`${prefix}-vel2`).textContent = met.v2 ? met.v2.toFixed(2) : '–';
+    document.getElementById(`${prefix}-vavg`).textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    document.getElementById(`${prefix}-ace`).textContent = met.a ? met.a.toFixed(2) : '–';
+    document.getElementById(`${prefix}-ener`).textContent = met.E_k ? met.E_k.toFixed(2) : '–';
+    // Tabla comparativa
+    if (tray === 'recta') document.getElementById('comp-recta-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    if (tray === 'braqui') document.getElementById('comp-braqui-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    if (tray === 'hiper') document.getElementById('comp-hiper-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    return met.v_avg;
+}
+
+// --- GANADOR ---
+function actualizarGanador() {
+    const vRecta = parseFloat(document.getElementById('comp-recta-vavg').textContent) || 0;
+    const vBraqui = parseFloat(document.getElementById('comp-braqui-vavg').textContent) || 0;
+    const vHiper = parseFloat(document.getElementById('comp-hiper-vavg').textContent) || 0;
+    let max = Math.max(vRecta, vBraqui, vHiper);
+    let ganador = '';
+    if (max === 0) {
+        document.getElementById('winner-message').textContent = '';
+        return;
+    }
+    if (max === vRecta) ganador = 'Recta';
+    if (max === vBraqui) ganador = 'Braquistócrona';
+    if (max === vHiper) ganador = 'Hipérbola';
+    document.getElementById('winner-message').textContent = `🥇 La curva ganadora fue: ${ganador} (velocidad promedio: ${max.toFixed(2)} m/s)`;
+}
+
+// --- INTEGRACIÓN AWS IOT MQTT CON COGNITO (NO MODIFICAR) ---
 AWS.config.region = "us-east-1";
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
   IdentityPoolId: "us-east-1:5b759c5d-979e-4b61-9b47-bb5056bef846",
 });
-
 AWS.config.credentials.get(function (err) {
   if (err) {
-    connectionStatus.textContent = '🔴 Error al obtener credenciales AWS';
+    setConnectionStatus(false);
     return;
   }
-
   const accessKeyId = AWS.config.credentials.accessKeyId;
   const secretKey = AWS.config.credentials.secretAccessKey;
   const sessionToken = AWS.config.credentials.sessionToken;
   const endpoint = "wss://aud5ctk8s2dkk-ats.iot.us-east-1.amazonaws.com/mqtt";
   const clientId = "webClient-" + (Math.floor(Math.random() * 100000) + 1);
-
   const signRequest = getSignedUrl({
     accessKeyId,
     secretKey,
@@ -56,7 +179,6 @@ AWS.config.credentials.get(function (err) {
     path: "/mqtt",
     service: "iotdevicegateway",
   });
-
   const client = mqtt.connect(signRequest, {
     clientId,
     protocol: "wss",
@@ -71,58 +193,58 @@ AWS.config.credentials.get(function (err) {
     connectTimeout: 30 * 1000,
     resubscribe: true,
   });
-
   client.on("connect", function () {
-    connectionStatus.textContent = '🟢 Conectado a AWS IoT';
-    connectionStatus.classList.add('connected');
+    setConnectionStatus(true);
     // Suscribirse a los topics de interés
     client.subscribe("modelo/recta");
     client.subscribe("modelo/braquistocrona");
     client.subscribe("modelo/hiperbola");
+    hideSpinner();
   });
-
+  client.on("close", function () {
+    setConnectionStatus(false);
+  });
+  client.on("offline", function () {
+    setConnectionStatus(false);
+  });
+  client.on("reconnect", function () {
+    setConnectionStatus(false);
+  });
+  client.on("error", function () {
+    setConnectionStatus(false);
+  });
   client.on("message", function (topic, message) {
     try {
       const data = JSON.parse(message.toString());
-      if (topic === "modelo/recta") {
-        trayectorias.recta = {
-          inicio: data.tiempo ?? '-',
-          medio: data.tiempo_medio ?? '-',
-          final: data.tiempo_final ?? '-'
-        };
-      } else if (topic === "modelo/braquistocrona") {
-        trayectorias.braquistocrona = {
-          inicio: data.tiempo ?? '-',
-          medio: data.tiempo_medio ?? '-',
-          final: data.tiempo_final ?? '-'
-        };
-      } else if (topic === "modelo/hiperbola") {
-        trayectorias.hiperbola = {
-          inicio: data.tiempo ?? '-',
-          medio: data.tiempo_medio ?? '-',
-          final: data.tiempo_final ?? '-'
-        };
+      let tray = '';
+      if (topic === "modelo/recta") tray = 'recta';
+      if (topic === "modelo/braquistocrona") tray = 'braqui';
+      if (topic === "modelo/hiperbola") tray = 'hiper';
+      // Actualizar tiempos
+      if (tray === 'recta') {
+        document.getElementById('recta-inicio').textContent = data.t_inicio ?? '–';
+        document.getElementById('recta-medio').textContent = data.t_medio ?? '–';
+        document.getElementById('recta-final').textContent = data.t_final ?? '–';
+        document.getElementById('comp-recta').textContent = data.t_final ?? '–';
       }
-      // Refresca la UI con todos los datos actuales
-      updateUI({
-        inicio_recta: trayectorias.recta.inicio,
-        medio_recta: trayectorias.recta.medio,
-        final_recta: trayectorias.recta.final,
-        inicio_braquistocrona: trayectorias.braquistocrona.inicio,
-        medio_braquistocrona: trayectorias.braquistocrona.medio,
-        final_braquistocrona: trayectorias.braquistocrona.final,
-        inicio_hiperbola: trayectorias.hiperbola.inicio,
-        medio_hiperbola: trayectorias.hiperbola.medio,
-        final_hiperbola: trayectorias.hiperbola.final
-      });
-    } catch (e) {
-      connectionStatus.textContent = '🔴 Error al procesar mensaje MQTT';
-    }
-  });
-
-  client.on("error", function (error) {
-    connectionStatus.textContent = '🔴 Error de conexión AWS IoT';
-    connectionStatus.classList.remove('connected');
+      if (tray === 'braqui') {
+        document.getElementById('braquistocrona-inicio').textContent = data.t_inicio ?? '–';
+        document.getElementById('braquistocrona-medio').textContent = data.t_medio ?? '–';
+        document.getElementById('braquistocrona-final').textContent = data.t_final ?? '–';
+        document.getElementById('comp-braquistocrona').textContent = data.t_final ?? '–';
+      }
+      if (tray === 'hiper') {
+        document.getElementById('hiperbola-inicio').textContent = data.t_inicio ?? '–';
+        document.getElementById('hiperbola-medio').textContent = data.t_medio ?? '–';
+        document.getElementById('hiperbola-final').textContent = data.t_final ?? '–';
+        document.getElementById('comp-hiperbola').textContent = data.t_final ?? '–';
+      }
+      // Cálculos físicos y actualización de métricas
+      if (data.t_inicio && data.t_medio && data.t_final) {
+        actualizarTarjeta(tray, data.t_inicio, data.t_medio, data.t_final);
+        actualizarGanador();
+      }
+    } catch (e) {}
   });
 });
 
@@ -241,6 +363,7 @@ function updateUI(data) {
     } else {
         adaptiveMessage.textContent = `⚠️ ¡Sorpresa! La trayectoria hipérbola ganó con ${data.final_hiperbola} ms.`;
     }
+    hideSpinner(); // Oculta el spinner cuando llegan datos
 }
 
 function resetUI() {
@@ -248,7 +371,19 @@ function resetUI() {
     [rectaInicio, rectaMedio, rectaFinal, braqInicio, braqMedio, braqFinal, hiperInicio, hiperMedio, hiperFinal].forEach(e => e.textContent = '–');
     [compRecta, compBraq, compHiper, compRectaRes, compBraqRes, compHiperRes].forEach(e => e.textContent = '–');
     adaptiveMessage.textContent = 'Esperando datos del ESP32…';
+    showSpinner(); // Muestra el spinner cuando se reinicia
 }
+
+// Spinner de carga
+function showSpinner() {
+    document.getElementById('spinner').style.display = 'block';
+}
+function hideSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+}
+
+// Mostrar spinner al inicio
+showSpinner();
 
 // Elimina el botón de actualizar y crea solo el botón de borrar datos, estilizado
 const clearButton = document.createElement('button');
