@@ -241,29 +241,37 @@ header h2 {
 
 #comparison {
     margin: 2rem auto 1rem auto;
-    max-width: 700px;
+    max-width: 900px;
     background: #fff;
     border-radius: 16px;
     box-shadow: 0 4px 24px 0 rgba(0,0,0,0.08);
-    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    padding: 2rem 1.5rem 2.5rem 1.5rem;
     animation: fadeIn 1.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 #comparison h3 {
     text-align: center;
     color: #1976d2;
     margin-top: 0;
     margin-bottom: 1.2rem;
+    width: 100%;
 }
 #comparison table {
     width: 100%;
+    max-width: 800px;
     border-collapse: collapse;
-    background: transparent;
+    background: #fff;
+    margin: 0 auto;
+    box-shadow: none;
 }
 #comparison th, #comparison td {
     padding: 0.7em 0.5em;
     text-align: center;
     font-size: 1.05em;
     border-bottom: 1px solid #e0e0e0;
+    background: #fff;
 }
 #comparison th {
     color: #2e7d32;
@@ -285,6 +293,21 @@ header h2 {
     padding: 0.7em 1em;
     box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
     max-width: 420px;
+}
+#message {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+#adaptive-message {
+    text-align: center;
+    font-size: 1.1em;
+    margin: 0 auto 1.5rem auto;
+    color: #222;
+    width: 100%;
 }
 
 .spinner {
