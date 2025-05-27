@@ -11,6 +11,31 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <!-- Panel de configuración de parámetros físicos -->
+    <section id="config-panel" class="config-panel">
+        <form id="config-form">
+            <h2>⚙️ Configuración del experimento</h2>
+            <div class="config-fields">
+                <div class="config-field">
+                    <label for="d1">Distancia tramo 1 (cm):</label>
+                    <input type="number" id="d1" min="1" value="50" required>
+                    <span class="error-msg" id="d1-error"></span>
+                </div>
+                <div class="config-field">
+                    <label for="d2">Distancia tramo 2 (cm):</label>
+                    <input type="number" id="d2" min="1" value="75" required>
+                    <span class="error-msg" id="d2-error"></span>
+                </div>
+                <div class="config-field">
+                    <label for="masa">Masa de la esfera (g):</label>
+                    <input type="number" id="masa" min="1" value="30" required>
+                    <span class="error-msg" id="masa-error"></span>
+                </div>
+            </div>
+            <button type="submit" id="save-config" class="btn-main">Guardar configuración</button>
+            <span class="success-msg" id="config-success"></span>
+        </form>
+    </section>
     <!-- Botón modo oscuro/claro -->
     <button id="dark-mode-toggle" class="dark-toggle" aria-label="Alternar modo oscuro/claro">🌙</button>
     <header>
@@ -84,6 +109,13 @@
                 <div class="card-value" id="recta-medio">–</div>
                 <div class="card-value-title">Final</div>
                 <div class="card-value" id="recta-final">–</div>
+                <div class="metrics">
+                    <p><span class="metric-label">Velocidad tramo 1:</span> <span id="recta-vel1">–</span> m/s</p>
+                    <p><span class="metric-label">Velocidad tramo 2:</span> <span id="recta-vel2">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Velocidad promedio:</span> <span id="recta-vavg">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Aceleración media:</span> <span id="recta-ace">–</span> m/s²</p>
+                    <p><span class="metric-label">Energía cinética final:</span> <span id="recta-ener">–</span> J</p>
+                </div>
             </div>
             <div class="card" id="card-braquistocrona">
                 <div class="card-icon">🌀</div>
@@ -94,6 +126,13 @@
                 <div class="card-value" id="braquistocrona-medio">–</div>
                 <div class="card-value-title">Final</div>
                 <div class="card-value" id="braquistocrona-final">–</div>
+                <div class="metrics">
+                    <p><span class="metric-label">Velocidad tramo 1:</span> <span id="braqui-vel1">–</span> m/s</p>
+                    <p><span class="metric-label">Velocidad tramo 2:</span> <span id="braqui-vel2">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Velocidad promedio:</span> <span id="braqui-vavg">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Aceleración media:</span> <span id="braqui-ace">–</span> m/s²</p>
+                    <p><span class="metric-label">Energía cinética final:</span> <span id="braqui-ener">–</span> J</p>
+                </div>
             </div>
             <div class="card" id="card-hiperbola">
                 <div class="card-icon">📈</div>
@@ -104,6 +143,13 @@
                 <div class="card-value" id="hiperbola-medio">–</div>
                 <div class="card-value-title">Final</div>
                 <div class="card-value" id="hiperbola-final">–</div>
+                <div class="metrics">
+                    <p><span class="metric-label">Velocidad tramo 1:</span> <span id="hiper-vel1">–</span> m/s</p>
+                    <p><span class="metric-label">Velocidad tramo 2:</span> <span id="hiper-vel2">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Velocidad promedio:</span> <span id="hiper-vavg">–</span> m/s</p>
+                    <p><span class="metric-label highlight">Aceleración media:</span> <span id="hiper-ace">–</span> m/s²</p>
+                    <p><span class="metric-label">Energía cinética final:</span> <span id="hiper-ener">–</span> J</p>
+                </div>
             </div>
         </section>
         <hr class="section-divider">

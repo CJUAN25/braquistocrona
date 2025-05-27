@@ -356,9 +356,97 @@ function actualizarGrafica() {
 // Llama a actualizarGrafica() cada vez que se actualizan los datos de la tabla
 // Puedes llamarlo al final de actualizarTarjeta o actualizarGanador
 
+// Panel de configuración: validación, persistencia y feedback
+window.addEventListener('DOMContentLoaded', () => {
+    const d1Input = document.getElementById('d1');
+    const d2Input = document.getElementById('d2');
+    const masaInput = document.getElementById('masa');
+    const successMsg = document.getElementById('config-success');
+    // Cargar valores guardados
+    if (localStorage.getItem('d1')) d1Input.value = localStorage.getItem('d1');
+    if (localStorage.getItem('d2')) d2Input.value = localStorage.getItem('d2');
+    if (localStorage.getItem('masa')) masaInput.value = localStorage.getItem('masa');
+    // Guardar y validar
+    document.getElementById('config-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let valid = true;
+        if (!d1Input.value || Number(d1Input.value) <= 0) {
+            document.getElementById('d1-error').textContent = 'Valor inválido';
+            valid = false;
+        } else {
+            document.getElementById('d1-error').textContent = '';
+        }
+        if (!d2Input.value || Number(d2Input.value) <= 0) {
+            document.getElementById('d2-error').textContent = 'Valor inválido';
+            valid = false;
+        } else {
+            document.getElementById('d2-error').textContent = '';
+        }
+        if (!masaInput.value || Number(masaInput.value) <= 0) {
+            document.getElementById('masa-error').textContent = 'Valor inválido';
+            valid = false;
+        } else {
+            document.getElementById('masa-error').textContent = '';
+        }
+        if (!valid) return;
+        localStorage.setItem('d1', d1Input.value);
+        localStorage.setItem('d2', d2Input.value);
+        localStorage.setItem('masa', masaInput.value);
+        successMsg.textContent = 'Configuración guardada correctamente';
+        setTimeout(() => successMsg.textContent = '', 2000);
+    });
+});
+
+// Cálculos físicos y actualización de tarjetas
+function calcularMetricas(t_inicio, t_medio, t_final, d1_cm, d2_cm, masa_g) {
+    const d1_m = d1_cm / 100;
+    const d2_m = d2_cm / 100;
+    const masa_kg = masa_g / 1000;
+    const t1 = (t_medio - t_inicio) / 1000;
+    const t2 = (t_final - t_medio) / 1000;
+    const t_total = (t_final - t_inicio) / 1000;
+    const v1 = t1 > 0 ? d1_m / t1 : 0;
+    const v2 = t2 > 0 ? d2_m / t2 : 0;
+    const v_avg = t_total > 0 ? (d1_m + d2_m) / t_total : 0;
+    const a = t_total > 0 ? (2 * (d1_m + d2_m)) / (t_total * t_total) : 0;
+    const E_k = 0.5 * masa_kg * v_avg * v_avg;
+    return {
+        v1: isFinite(v1) ? v1 : 0,
+        v2: isFinite(v2) ? v2 : 0,
+        v_avg: isFinite(v_avg) ? v_avg : 0,
+        a: isFinite(a) ? a : 0,
+        E_k: isFinite(E_k) ? E_k : 0
+    };
+}
+
 function actualizarTarjeta(tray, t_inicio, t_medio, t_final) {
-    // ...existing code...
-    // Actualiza la gráfica después de actualizar la tabla
-    actualizarGrafica();
-    // ...existing code...
+    const d1 = Number(localStorage.getItem('d1') || 50);
+    const d2 = Number(localStorage.getItem('d2') || 75);
+    const masa = Number(localStorage.getItem('masa') || 30);
+    const met = calcularMetricas(t_inicio, t_medio, t_final, d1, d2, masa);
+    let prefix = '';
+    if (tray === 'recta') prefix = 'recta';
+    if (tray === 'braquistocrona') prefix = 'braqui';
+    if (tray === 'hiperbola') prefix = 'hiper';
+    document.getElementById(`${prefix}-vel1`).textContent = met.v1 ? met.v1.toFixed(2) : '–';
+    document.getElementById(`${prefix}-vel2`).textContent = met.v2 ? met.v2.toFixed(2) : '–';
+    document.getElementById(`${prefix}-vavg`).textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+    document.getElementById(`${prefix}-ace`).textContent = met.a ? met.a.toFixed(2) : '–';
+    document.getElementById(`${prefix}-ener`).textContent = met.E_k ? met.E_k.toFixed(2) : '–';
+    // También actualizar tabla comparativa
+    if (tray === 'recta') {
+        document.getElementById('comp-recta-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+        document.getElementById('comp-recta-ace').textContent = met.a ? met.a.toFixed(2) : '–';
+        document.getElementById('comp-recta-ener').textContent = met.E_k ? met.E_k.toFixed(2) : '–';
+    }
+    if (tray === 'braquistocrona') {
+        document.getElementById('comp-braqui-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+        document.getElementById('comp-braqui-ace').textContent = met.a ? met.a.toFixed(2) : '–';
+        document.getElementById('comp-braqui-ener').textContent = met.E_k ? met.E_k.toFixed(2) : '–';
+    }
+    if (tray === 'hiperbola') {
+        document.getElementById('comp-hiper-vavg').textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
+        document.getElementById('comp-hiper-ace').textContent = met.a ? met.a.toFixed(2) : '–';
+        document.getElementById('comp-hiper-ener').textContent = met.E_k ? met.E_k.toFixed(2) : '–';
+    }
 }
