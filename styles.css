@@ -270,7 +270,7 @@ header h2 {
 }
 #comparison table {
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;
     border-collapse: collapse;
     background: #fff;
     margin: 0 auto;
