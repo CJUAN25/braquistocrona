@@ -11,31 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Panel de configuración de parámetros físicos -->
-    <section id="config-panel" class="config-panel">
-        <form id="config-form">
-            <h2>⚙️ Configuración del experimento</h2>
-            <div class="config-fields">
-                <div class="config-field">
-                    <label for="d1">Distancia tramo 1 (cm):</label>
-                    <input type="number" id="d1" min="1" value="50" required>
-                    <span class="error-msg" id="d1-error"></span>
-                </div>
-                <div class="config-field">
-                    <label for="d2">Distancia tramo 2 (cm):</label>
-                    <input type="number" id="d2" min="1" value="75" required>
-                    <span class="error-msg" id="d2-error"></span>
-                </div>
-                <div class="config-field">
-                    <label for="masa">Masa de la esfera (g):</label>
-                    <input type="number" id="masa" min="1" value="30" required>
-                    <span class="error-msg" id="masa-error"></span>
-                </div>
-            </div>
-            <button type="submit" id="save-config" class="btn-main">Guardar configuración</button>
-            <span class="success-msg" id="config-success"></span>
-        </form>
-    </section>
     <!-- Botón modo oscuro/claro -->
     <button id="dark-mode-toggle" class="dark-toggle" aria-label="Alternar modo oscuro/claro">🌙</button>
     <header>
@@ -46,7 +21,7 @@
         </div>
     </header>
     <main>
-        <!-- Formulario de configuración moderno -->
+        <!-- Formulario de configuración moderno por trayectoria -->
         <section id="config-section" class="card fade-in">
             <form id="config-form">
                 <h2>Configuración del experimento</h2>
