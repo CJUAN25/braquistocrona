@@ -94,17 +94,20 @@ function setConnectionStatus(connected) {
 }
 
 // --- CÁLCULOS FÍSICOS ---
+// Ahora los tiempos llegan en segundos y t_inicio=0
 function calcularMetricasTrayectoria(tray, t_inicio, t_medio, t_final) {
     // Obtener configuración específica
+    // tray puede ser 'recta', 'braqui', 'hiper'
     const d1 = Number(localStorage.getItem(`d1-${tray}`) || document.getElementById(`d1-${tray}`).value);
     const d2 = Number(localStorage.getItem(`d2-${tray}`) || document.getElementById(`d2-${tray}`).value);
     const masa = Number(localStorage.getItem('masa') || document.getElementById('masa').value);
-    const d1_m = d1 / 100;
+    const d1_m = d1 / 100; // cm a m
     const d2_m = d2 / 100;
     const masa_kg = masa / 1000;
-    const t1 = (t_medio - t_inicio) / 1000;
-    const t2 = (t_final - t_medio) / 1000;
-    const t_total = (t_final - t_inicio) / 1000;
+    // Los tiempos ya están en segundos, t_inicio=0
+    const t1 = Number(t_medio) - Number(t_inicio); // s
+    const t2 = Number(t_final) - Number(t_medio); // s
+    const t_total = Number(t_final) - Number(t_inicio); // s
     const v1 = t1 > 0 ? d1_m / t1 : 0;
     const v2 = t2 > 0 ? d2_m / t2 : 0;
     const v_avg = t_total > 0 ? (d1_m + d2_m) / t_total : 0;
@@ -124,8 +127,7 @@ function actualizarTarjeta(tray, t_inicio, t_medio, t_final) {
     // tray: 'recta', 'braqui', 'hiper'
     const met = calcularMetricasTrayectoria(tray, t_inicio, t_medio, t_final);
     let prefix = tray;
-    if (tray === 'braqui') prefix = 'braqui';
-    if (tray === 'hiper') prefix = 'hiper';
+    // Prefijos de IDs en HTML: recta, braqui, hiper
     document.getElementById(`${prefix}-vel1`).textContent = met.v1 ? met.v1.toFixed(2) : '–';
     document.getElementById(`${prefix}-vel2`).textContent = met.v2 ? met.v2.toFixed(2) : '–';
     document.getElementById(`${prefix}-vavg`).textContent = met.v_avg ? met.v_avg.toFixed(2) : '–';
@@ -220,28 +222,32 @@ AWS.config.credentials.get(function (err) {
       if (topic === "modelo/recta") tray = 'recta';
       if (topic === "modelo/braquistocrona") tray = 'braqui';
       if (topic === "modelo/hiperbola") tray = 'hiper';
-      // Actualizar tiempos
+      // Adaptar a formato ESP32: t_inicio = 0, t_medio = data.tiempo_medio, t_final = data.tiempo_final (en segundos)
+      const t_inicio = 0;
+      const t_medio = typeof data.tiempo_medio === 'number' ? data.tiempo_medio : null;
+      const t_final = typeof data.tiempo_final === 'number' ? data.tiempo_final : null;
+      // Mostrar tiempos en la UI (en segundos)
       if (tray === 'recta') {
-        document.getElementById('recta-inicio').textContent = data.t_inicio ?? '–';
-        document.getElementById('recta-medio').textContent = data.t_medio ?? '–';
-        document.getElementById('recta-final').textContent = data.t_final ?? '–';
-        document.getElementById('comp-recta').textContent = data.t_final ?? '–';
+        document.getElementById('recta-inicio').textContent = t_inicio !== null ? t_inicio.toFixed(3) + ' s' : '–';
+        document.getElementById('recta-medio').textContent = t_medio !== null ? t_medio.toFixed(3) + ' s' : '–';
+        document.getElementById('recta-final').textContent = t_final !== null ? t_final.toFixed(3) + ' s' : '–';
+        document.getElementById('comp-recta').textContent = t_final !== null ? t_final.toFixed(3) + ' s' : '–';
       }
       if (tray === 'braqui') {
-        document.getElementById('braquistocrona-inicio').textContent = data.t_inicio ?? '–';
-        document.getElementById('braquistocrona-medio').textContent = data.t_medio ?? '–';
-        document.getElementById('braquistocrona-final').textContent = data.t_final ?? '–';
-        document.getElementById('comp-braquistocrona').textContent = data.t_final ?? '–';
+        document.getElementById('braquistocrona-inicio').textContent = t_inicio !== null ? t_inicio.toFixed(3) + ' s' : '–';
+        document.getElementById('braquistocrona-medio').textContent = t_medio !== null ? t_medio.toFixed(3) + ' s' : '–';
+        document.getElementById('braquistocrona-final').textContent = t_final !== null ? t_final.toFixed(3) + ' s' : '–';
+        document.getElementById('comp-braquistocrona').textContent = t_final !== null ? t_final.toFixed(3) + ' s' : '–';
       }
       if (tray === 'hiper') {
-        document.getElementById('hiperbola-inicio').textContent = data.t_inicio ?? '–';
-        document.getElementById('hiperbola-medio').textContent = data.t_medio ?? '–';
-        document.getElementById('hiperbola-final').textContent = data.t_final ?? '–';
-        document.getElementById('comp-hiperbola').textContent = data.t_final ?? '–';
+        document.getElementById('hiperbola-inicio').textContent = t_inicio !== null ? t_inicio.toFixed(3) + ' s' : '–';
+        document.getElementById('hiperbola-medio').textContent = t_medio !== null ? t_medio.toFixed(3) + ' s' : '–';
+        document.getElementById('hiperbola-final').textContent = t_final !== null ? t_final.toFixed(3) + ' s' : '–';
+        document.getElementById('comp-hiperbola').textContent = t_final !== null ? t_final.toFixed(3) + ' s' : '–';
       }
-      // Cálculos físicos y actualización de métricas
-      if (data.t_inicio && data.t_medio && data.t_final) {
-        actualizarTarjeta(tray, data.t_inicio, data.t_medio, data.t_final);
+      // Cálculos físicos y actualización de métricas SOLO si t_medio y t_final son válidos
+      if (t_medio !== null && t_final !== null) {
+        actualizarTarjeta(tray, t_inicio, t_medio, t_final);
         actualizarGanador();
       }
     } catch (e) {}
