@@ -142,19 +142,41 @@ function actualizarTarjeta(tray, t_inicio, t_medio, t_final) {
 
 // --- GANADOR ---
 function actualizarGanador() {
-    const vRecta = parseFloat(document.getElementById('comp-recta-vavg').textContent) || 0;
-    const vBraqui = parseFloat(document.getElementById('comp-braqui-vavg').textContent) || 0;
-    const vHiper = parseFloat(document.getElementById('comp-hiper-vavg').textContent) || 0;
-    let max = Math.max(vRecta, vBraqui, vHiper);
-    let ganador = '';
-    if (max === 0) {
+    // Obtener los tiempos finales (en segundos, quitar ' s' si está presente)
+    const tRecta = parseFloat((document.getElementById('comp-recta').textContent || '').replace(' s', '')) || 0;
+    const tBraqui = parseFloat((document.getElementById('comp-braquistocrona').textContent || '').replace(' s', '')) || 0;
+    const tHiper = parseFloat((document.getElementById('comp-hiperbola').textContent || '').replace(' s', '')) || 0;
+
+    // Solo mostrar ganador si hay datos de las tres trayectorias
+    if (!(tRecta > 0 && tBraqui > 0 && tHiper > 0)) {
         document.getElementById('winner-message').textContent = '';
+        document.getElementById('comp-recta-resultado').textContent = '–';
+        document.getElementById('comp-braquistocrona-resultado').textContent = '–';
+        document.getElementById('comp-hiperbola-resultado').textContent = '–';
         return;
     }
-    if (max === vRecta) ganador = 'Recta';
-    if (max === vBraqui) ganador = 'Braquistócrona';
-    if (max === vHiper) ganador = 'Hipérbola';
-    document.getElementById('winner-message').textContent = `🥇 La curva ganadora fue: ${ganador} (velocidad promedio: ${max.toFixed(2)} m/s)`;
+
+    // Encontrar la curva con menor tiempo
+    let tiempos = [
+        { nombre: 'Recta', id: 'comp-recta-resultado', valor: tRecta },
+        { nombre: 'Braquistócrona', id: 'comp-braquistocrona-resultado', valor: tBraqui },
+        { nombre: 'Hipérbola', id: 'comp-hiperbola-resultado', valor: tHiper }
+    ];
+    let minTiempo = Math.min(...tiempos.map(t => t.valor));
+    let ganadores = tiempos.filter(t => t.valor === minTiempo);
+
+    // Limpiar resultados previos
+    tiempos.forEach(t => {
+        document.getElementById(t.id).textContent = '❌ Más lento';
+    });
+    // Marcar ganadora(s)
+    ganadores.forEach(t => {
+        document.getElementById(t.id).textContent = '✅ Ganador';
+    });
+
+    // Mensaje de ganador
+    let nombres = ganadores.map(t => t.nombre).join(' y ');
+    document.getElementById('winner-message').textContent = `🥇 La curva ganadora fue: ${nombres} (tiempo final: ${minTiempo.toFixed(3)} s)`;
 }
 
 // --- INTEGRACIÓN AWS IOT MQTT CON COGNITO (NO MODIFICAR) ---
